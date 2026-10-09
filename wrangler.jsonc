@@ -1,0 +1,9 @@
+{
+  "name": "dashboard-sbml",
+  "main": "./worker.js",
+  "compatibility_date": "2026-10-09",
+  "workers_dev": true,
+  "vars": {
+    "SHEET_RANGE": "SBML!A:I"
+  }
+}
