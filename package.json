@@ -1,0 +1,14 @@
+{
+  "name": "dashboard-sbml-cloudflare",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy --config wrangler.sbml.jsonc",
+    "dev": "wrangler dev --config wrangler.sbml.jsonc",
+    "check": "node scripts/cek-konfigurasi.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.149.0"
+  }
+}
