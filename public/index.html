@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f3f6fb">
-<title>Dashboard SBML | Monitoring Usulan Standar Biaya Masukan Lainnya</title>
+<title>Dashboard Monitoring SBML Kementerian/Lembaga</title>
 <style>
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#18253e;background:#f2f6fb;--primary:#5638f5;--green:#16a34a;--red:#e11d65;--amber:#d97706;--border:#dde6f0;--muted:#6c7b94}
 *{box-sizing:border-box}body{margin:0;min-width:320px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #a69bff;outline-offset:2px}
-.topbar{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 8px #283c5b09}.bar-inner{max-width:1400px;padding:18px 24px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.identity{display:flex;align-items:center;gap:13px}.logo{width:48px;height:48px;border:1px solid #e5e7ff;border-radius:15px;background:#f4f2ff;display:grid;place-items:center;color:var(--primary);font-size:25px;box-shadow:0 2px 6px #283a6710}.identity h1{font-size:22px;letter-spacing:-.7px;margin:0;font-weight:800}.identity h1 span{color:var(--primary)}.sub{color:var(--muted);font-size:12px;margin-top:3px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #d9e1ed;background:#fff;color:#273b57;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:700;white-space:nowrap;text-decoration:none}.btn.primary{color:#fff;background:var(--primary);border-color:var(--primary);box-shadow:0 3px 8px #5638f535}.btn.danger{color:#be174b;background:#fff5f8;border-color:#f6cede}.btn.ghost{border-color:transparent;background:#f1f4f9}.btn:hover:not(:disabled){filter:brightness(.97)}.btn.small{padding:7px 10px;font-size:12px}
+.topbar{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 8px #283c5b09}.bar-inner{max-width:1400px;padding:18px 24px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.identity{display:flex;align-items:center;gap:13px}.logo{width:56px;height:56px;border:1px solid #d9def8;border-radius:16px;background:linear-gradient(135deg,#eef4ff,#f1ecff);display:grid;place-items:center;box-shadow:0 3px 8px #283a6710;overflow:hidden;padding:6px}.logo img{width:100%;height:100%;object-fit:contain;display:block}.identity h1{font-size:22px;letter-spacing:-.7px;margin:0;font-weight:800}.identity h1 span{color:var(--primary)}.sub{color:var(--muted);font-size:12px;margin-top:3px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #d9e1ed;background:#fff;color:#273b57;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:700;white-space:nowrap;text-decoration:none}.btn.primary{color:#fff;background:var(--primary);border-color:var(--primary);box-shadow:0 3px 8px #5638f535}.btn.danger{color:#be174b;background:#fff5f8;border-color:#f6cede}.btn.ghost{border-color:transparent;background:#f1f4f9}.btn:hover:not(:disabled){filter:brightness(.97)}.btn.small{padding:7px 10px;font-size:12px}
 .container{max-width:1400px;margin:0 auto;padding:22px 24px 42px}.notice{border:1px solid #d9e1f0;background:#f7f9ff;border-radius:12px;margin-bottom:18px;padding:11px 15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:#4b5871}.notice strong{color:#273d60}.notice.error{background:#fff5f6;border-color:#f6ccd5;color:#991b40}.notice.ok{background:#f0fdf4;border-color:#c7eed2;color:#166534}.close-note{margin-left:auto;border:0;background:transparent;color:inherit;font-size:18px}
 .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:19px}.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:17px 20px;box-shadow:0 2px 3px #1d31460b}.stat .caption{font-size:12px;color:var(--muted);font-weight:650}.stat .number{font-weight:800;font-size:30px;margin:5px 0 1px;letter-spacing:-1px}.stat .foot{font-size:11px;color:#8b98aa}.stat .number.good{color:var(--green)}.stat .number.bad{color:var(--red)}.stat .number.other{color:var(--amber)}
 .topgrid{display:grid;grid-template-columns:1.12fr .98fr;gap:18px;margin-bottom:18px}.panel{background:white;border:1px solid var(--border);border-radius:17px;box-shadow:0 2px 3px #1d31460d}.chart-panel{padding:20px 22px 15px}.panel-title{font-weight:800;font-size:12px;letter-spacing:.55px;color:#607797;text-transform:uppercase;margin:0}.chart-inner{min-height:280px;display:grid;grid-template-columns:minmax(240px,1fr) 130px;align-items:center;gap:10px}.chart{width:100%;max-height:300px}.chart-key{display:flex;flex-direction:column;gap:13px}.legend{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}.dot{display:inline-block;flex:none;width:12px;height:12px;border-radius:50%}.legend strong{margin-left:auto}.chart-info{border-top:1px solid #f0f2f6;color:#6a7890;font-size:12px;padding-top:10px}.decision-cards{display:flex;flex-direction:column;gap:12px}.decision-card{--accent:#64748b;background:#fff;border:1px solid var(--border);border-left:5px solid var(--accent);border-radius:14px;box-shadow:0 2px 3px #1d31460a;padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--accent);text-align:left;min-height:75px}.decision-card .name{font-size:14px;font-weight:750}.decision-card .count{font-size:24px;font-weight:800;color:#17213a}.decision-card .count small{color:#728198;font-size:11px;font-weight:500}.decision-card.selected{background:#f8f7ff;border-color:var(--accent)}
@@ -22,7 +22,7 @@
 :root{background:#eff5ff;--border:#dce5fa;--primary:#6547df;--muted:#667895}
 body{background:linear-gradient(135deg,#e6f4ff 0%,#eff5ff 40%,#f2ebff 75%,#e8f2ff 100%);background-attachment:fixed}
 .topbar{background:linear-gradient(105deg,#eaf6ff 0%,#f1edff 65%,#e7f0ff 100%);border-bottom:1px solid #dce6fb;box-shadow:0 4px 18px #6f6aab19}
-.logo{background:linear-gradient(135deg,#dcecff,#e8dfff);border-color:#d1d7fc;color:#5c43cd}
+.logo{background:linear-gradient(135deg,#dcecff,#e8dfff);border-color:#d1d7fc}
 .panel{background:#fff;box-shadow:0 5px 17px #7b80ad13;border-color:#dfe4fa}
 .stat{background:#edf7ff;border-color:#d8eafa;box-shadow:0 4px 14px #889ac017}
 .stat:nth-child(2){background:#eff9f4;border-color:#d3ecde}
@@ -44,11 +44,28 @@ tbody tr:nth-child(even){background:#f9fbff}
 .btn.ghost{background:#e8ecff}
 .notice{background:#edf5ff}
 @media print{body{background:white!important}}
+
+/* Identitas instansi: header formal dan logo transparan. Area lain tetap mengikuti layout sebelumnya. */
+.topbar{position:relative}
+.topbar::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#2c65c6,#7556cc,#c5b5ed)}
+.bar-inner{padding-top:16px;padding-bottom:16px;gap:18px}
+.identity{align-items:center;min-width:0;gap:16px;flex:1 1 590px}
+.logo,.logo{width:70px;height:76px;flex:none;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.logo img{width:100%;height:100%;object-fit:contain;display:block;filter:drop-shadow(0 2px 3px rgba(23,42,86,.12))}
+.identity-copy{min-width:0}
+.institution{color:#4d6390;font-size:10px;letter-spacing:1.4px;font-weight:800;margin-bottom:5px}
+.identity h1{font-size:clamp(19px,2vw,25px);line-height:1.23;letter-spacing:-.65px;font-weight:800;margin:0;color:#162944;max-width:920px}
+.identity h1 span{color:#6649da}
+.sub{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;line-height:1.5;margin-top:6px}
+.subtitle-label{font-weight:550;color:#546b92}
+.subtitle-divider{color:#a7abd4}
+#updateLabel{color:#607594}
+@media(max-width:680px){.bar-inner{padding-top:16px;padding-bottom:16px}.identity{gap:11px;flex-basis:100%}.logo{width:52px;height:64px}.identity h1{font-size:18px}.institution{font-size:9px;letter-spacing:.65px}.sub{font-size:11px;gap:5px}.subtitle-divider{display:none}.subtitle-label{width:100%}.actions{justify-content:flex-end;width:100%}}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="bar-inner">
-<div class="identity"><div class="logo" aria-hidden="true">▦</div><div><h1 id="appTitle">Dashboard <span>SBML</span></h1><div class="sub" id="updateLabel">Standar Biaya Masukan Lainnya · Memuat data...</div></div></div>
+<div class="identity"><div class="logo" ><img src="./logo-kemenkeu-transparent.png" alt="Logo Kementerian Keuangan"></div><div class="identity-copy"><div class="institution">KEMENTERIAN KEUANGAN REPUBLIK INDONESIA</div><h1 id="appTitle">Dashboard Monitoring <span>SBML</span> Kementerian/Lembaga</h1><div class="sub"><span class="subtitle-label" id="subtitleLabel">Pemantauan Usulan Standar Biaya Masukan Lainnya</span><span class="subtitle-divider" aria-hidden="true">·</span><span id="updateLabel">Memuat data...</span></div></div></div>
 <div class="actions"><a id="openSheet" href="#" target="_blank" rel="noopener noreferrer" class="btn hidden">↗ Buka Sheet</a><button class="btn primary" type="button" id="refresh">↻ Refresh</button></div>
 </div></header>
 <main class="container">
@@ -74,8 +91,8 @@ tbody tr:nth-child(even){background:#f9fbff}
 <script>
 'use strict';
 const APP_CONFIG={
-  title:'Dashboard SBML',
-  subtitle:'Standar Biaya Masukan Lainnya · Monitoring Usulan Kementerian/Lembaga',
+  title:'Dashboard Monitoring SBML Kementerian/Lembaga',
+  subtitle:'Pemantauan Usulan Standar Biaya Masukan Lainnya',
   chartTitle:'PERBANDINGAN KEPUTUSAN: DISETUJUI / DITOLAK',
   tableTitle:'Matriks Inventarisasi SBML'
 };
@@ -83,10 +100,11 @@ const HEADERS=['No','Nama KL','Tahun','No Surat / Tgl','Perihal','Surat Menkeu /
 const KEYS=['no','nama_kl','tahun','no_surat_tgl','perihal','surat_menkeu_tgl','karakteristik_kl','jenis_sbml','status'];
 const $=id=>document.getElementById(id),trim=v=>String(v??'').trim();
 document.title=APP_CONFIG.title+' | Monitoring Usulan';
-const pos=APP_CONFIG.title.lastIndexOf(' ');const last=document.createElement('span');last.textContent=pos<0?APP_CONFIG.title:APP_CONFIG.title.slice(pos+1);$('appTitle').replaceChildren(document.createTextNode(pos<0?'':APP_CONFIG.title.slice(0,pos)+' '),last);
+const keyword='SBML',position=APP_CONFIG.title.indexOf(keyword);if(position>=0){const accent=document.createElement('span');accent.textContent=keyword;$('appTitle').replaceChildren(document.createTextNode(APP_CONFIG.title.slice(0,position)),accent,document.createTextNode(APP_CONFIG.title.slice(position+keyword.length)))}else $('appTitle').textContent=APP_CONFIG.title;
+$('subtitleLabel').textContent=APP_CONFIG.subtitle;
 $('chartTitle').textContent=APP_CONFIG.chartTitle;
 $('tableTitle').textContent=APP_CONFIG.tableTitle;
-$('updateLabel').textContent=APP_CONFIG.subtitle+' · Memuat data...';
+$('updateLabel').textContent='Memuat data...';
 
 const esc=v=>trim(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let rows=[],decision='all',page=1,sheetUrl='',loaded=false;
@@ -123,8 +141,8 @@ function notify(title,text,kind=''){const el=$('notice');el.className='notice'+(
 async function load(){const button=$('refresh');button.disabled=true;button.textContent='↻ Memuat...';
  try{const response=await fetch('/api/sbml',{cache:'no-store'});let result;try{result=await response.json()}catch{throw Error('Respons API bukan JSON')}if(!response.ok)throw Error(result.error||'Gagal mengambil data (HTTP '+response.status+')');if(result.source!=='Google Sheets'||!Array.isArray(result.data))throw Error('Sumber data bukan Google Sheets');
  rows=result.data.map(toRecord).filter(r=>r.nama_kl);loaded=true;sheetUrl=result.sheetUrl||'';$('openSheet').classList.toggle('hidden',!sheetUrl);if(sheetUrl)$('openSheet').href=sheetUrl;
- $('updateLabel').textContent='Google Sheets · Diperbarui '+new Date().toLocaleString('id-ID');page=1;setupFilters();render();notify('Google Sheets terhubung',`${rows.length} data berhasil dimuat dari spreadsheet. Tambah atau ubah data melalui Google Sheets.`, 'ok');
- }catch(e){rows=[];loaded=false;sheetUrl='';$('openSheet').classList.add('hidden');$('updateLabel').textContent='Google Sheets · Koneksi belum tersedia';setupFilters();render();notify('Gagal memuat Google Sheets',e.message+'. Tidak menampilkan data lokal atau demonstrasi.','error')}
+ $('updateLabel').textContent='Diperbarui '+new Date().toLocaleString('id-ID');page=1;setupFilters();render();notify('Google Sheets terhubung',`${rows.length} data berhasil dimuat dari spreadsheet. Tambah atau ubah data melalui Google Sheets.`, 'ok');
+ }catch(e){rows=[];loaded=false;sheetUrl='';$('openSheet').classList.add('hidden');$('updateLabel').textContent='Koneksi data belum tersedia';setupFilters();render();notify('Gagal memuat Google Sheets',e.message+'. Tidak menampilkan data lokal atau demonstrasi.','error')}
  finally{button.disabled=false;button.textContent='↻ Refresh'}}
 function csvCell(v){let s=trim(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
 function download(content,name,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}

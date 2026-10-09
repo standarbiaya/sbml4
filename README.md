@@ -1,59 +1,54 @@
-# Dashboard SBML — Latar Biru Muda dan Ungu Muda
+# Dashboard Monitoring SBML Kementerian/Lembaga — Versi Formal
 
-Revisi ini memakai **tata letak Dashboard SBML sebelumnya**. Hanya menu **Data Lokal** dan **Impor Data** yang dihapus. Semua angka, matriks, diagram donat, dan filter membaca **Google Sheets** melalui `/api/sbml`.
+Versi 3.2.0. Diperuntukkan bagi Worker Cloudflare **`sbml42`** yang telah terhubung ke Google Sheets.
 
-## Yang tetap ada
+## Yang diperbarui
 
-- Buka Sheet dan Refresh
-- Ringkasan Total, Disetujui, Ditolak, serta Proses/Lainnya
-- Grafik donat Disetujui/Ditolak
-- Kartu keputusan dan filter status
-- Pencarian; filter Tahun, K/L, Jenis SBML
-- Matriks 9 kolom, pagination, Ekspor CSV, JSON, dan Cetak
-- Tombol **Tambah Usulan** yang sekarang membuka Google Sheets; tidak lagi menyimpan data pada browser. Anda perlu hak edit Google Sheets untuk menambah data.
+- Logo Kementerian Keuangan dari gambar yang disediakan pengguna, berkas PNG **transparan** di `public/logo-kemenkeu-transparent.png`.
+- Header lebih formal: identitas Kementerian Keuangan, judul **Dashboard Monitoring SBML Kementerian/Lembaga**, deskripsi singkat, dan waktu pembaruan.
+- Tulisan `Google Sheets` di **header** dihilangkan (hanya status waktu pembaruan).
+- Latar biru muda dan ungu muda, grafik, kartu statistik, filter, pencarian, tabel 9 kolom dan menu lain tetap seperti versi sebelumnya.
+- Menu **Data Lokal** dan **Impor Data** tetap tidak tersedia. Tidak ada data contoh atau fallback lokal di Worker produksi.
+- Logo tersedia lewat route langsung `/logo-kemenkeu-transparent.png` yang dihasilkan oleh build Worker. Dengan demikian, logo muncul meski Worker tidak memakai pengaturan folder static assets.
 
-## Deploy di Cloudflare (Worker `sbml42`)
+## Deploy Cloudflare (`sbml42`)
 
-1. Simpan salinan repository lama sebagai cadangan.
-2. Ekstrak ZIP, lalu **unggah isi ZIP ke root repository GitHub** yang terhubung ke Cloudflare, bukan ZIP atau folder induknya. Timpa berkas lama yang bernama sama.
-3. Commit perubahan. Pastikan root berisi `worker.js`, `wrangler.jsonc`, `package.json`, `backend.js`, `build.mjs`, serta folder `public` dan `scripts`.
-4. Pengaturan Cloudflare: **Build command** `npm run build` dan **Deploy command** `npx wrangler deploy --config ./wrangler.jsonc`. Root directory = root repository.
-5. Verifikasi Worker production bernama **`sbml42`**. Pastikan Runtime Variables and Secrets tetap ada:
-   - `SHEET_ID`: ID spreadsheet
-   - `GOOGLE_CLIENT_EMAIL`: email Service Account
-   - `GOOGLE_PRIVATE_KEY`: Secret berisi private key (jangan masukkan ke repository)
-   - `SHEET_RANGE`: `SBML!A:I`
-6. Buka `/api/sbml` pada domain Worker Anda; pastikan JSON memuat `"source":"Google Sheets"`, kemudian buka homepage dan klik **Refresh**.
+1. Ekstrak ZIP dan unggah **semua isinya** ke **root** repo GitHub yang sudah terhubung ke Worker `sbml42` (jangan unggah ZIP/folder induknya saja). Buat commit baru.
+2. Pastikan root memiliki `wrangler.jsonc`, `worker.js`, `build.mjs`, `backend.js`, `package.json`, `public/`, dan `scripts/`.
+3. Pada Cloudflare → Workers & Pages → `sbml42` → Settings → Build, gunakan:
+   - **Root directory:** root repo.
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy --config ./wrangler.jsonc`
+4. Jangan hapus runtime variables/secrets Production: `SHEET_ID`, `GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY` (Secret), serta `SHEET_RANGE` = `SBML!A:I`.
+5. Setelah deploy berhasil, periksa:
+   - `https://sbml42.andriyprast69.workers.dev/` — dashboard.
+   - `https://sbml42.andriyprast69.workers.dev/logo-kemenkeu-transparent.png` — logo transparan.
+   - `https://sbml42.andriyprast69.workers.dev/api/sbml` — data API dengan `source: "Google Sheets"`.
+6. Jika tampilan masih versi lama, lakukan hard refresh (`Ctrl + F5`).
 
-File `wrangler.jsonc` memakai `keep_vars:true` untuk mempertahankan variabel runtime Worker. Jangan menambahkan kredensial rahasia ke file konfigurasi / GitHub.
+## Mengubah tulisan dan gaya
 
-## Mengganti tulisan tanpa mengubah desain
+- Edit `public/index.html` pada objek **`APP_CONFIG`** untuk mengganti:
+  - `title`: judul utama dan judul tab browser.
+  - `subtitle`: keterangan di bawah judul.
+  - `chartTitle`: judul grafik.
+  - `tableTitle`: judul matriks.
+- Nama instansi pada baris paling atas header berada pada elemen HTML `.institution`.
+- Warna biru muda dan ungu muda dapat diubah pada bagian CSS **Palet pastel**.
+- Ukuran logo diatur oleh CSS `.logo` dan `.logo img`; file aslinya di `public/logo-kemenkeu-transparent.png`.
+- Jalankan `npm run build` setiap selesai mengubah HTML/logo agar `worker.js` diperbarui sebelum deployment. Cloudflare dengan Build command di atas akan menjalankannya otomatis.
 
-Edit `public/index.html`, cari `const APP_CONFIG`:
+## Keamanan dan sumber data
 
-- `title`: judul utama
-- `subtitle`: keterangan awal saat memuat
-- `chartTitle`: judul grafik
-- `tableTitle`: judul matriks
+Dashboard **hanya membaca data dari Google Sheets** melalui `/api/sbml` yang diautentikasi menggunakan Service Account. Tombol **Tambah Usulan** membuka Google Sheets; perubahan harus dilakukan di sana. Tidak ada import atau penyimpanan lokal.
 
-Setelah menyunting HTML, jalankan `npm run build` atau `node build.mjs` agar `worker.js` berisi desain terbaru, kemudian deploy ulang.
+**Penting:** endpoint `/api/sbml` tetap dapat diakses publik jika belum dilindungi. Untuk data internal, atur Cloudflare Access / autentikasi sebelum digunakan untuk operasional. Jangan simpan private key di repository.
 
-## Mengubah warna
+## Pengujian dan preview
 
-Edit CSS yang diberi komentar `Palet pastel` pada `public/index.html`.
-
-## Data dan keamanan
-
-- Tidak ada `localStorage`, data demonstrasi, ataupun impor file di **aplikasi produksi**.
-- Jika API gagal, data tidak diganti dengan data contoh.
-- File preview terpisah memakai data ilustrasi yang **tidak disertakan ke Worker**.
-- Endpoint `/api/sbml` tetap dapat diakses publik jika Anda belum menambahkan kontrol akses. Untuk data internal, gunakan Cloudflare Access atau autentikasi lain sebelum digunakan secara operasional.
-
-## Pengujian
-
-```
-node build.mjs
-node scripts/verify.mjs
+```sh
+npm run build
+npm run check
 ```
 
-Pengujian otomatis memeriksa konfigurasi Worker, menu utama, ketiadaan data lokal/impor, serta respons API Google Sheets dengan mock test.
+Preview HTML dan screenshot disediakan **terpisah dari Worker produksi**. Preview memakai data fiktif untuk memeriksa desain, bukan data resmi.
