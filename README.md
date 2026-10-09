@@ -1,58 +1,59 @@
-# Dashboard SBML — paket deploy Cloudflare (revisi)
+# Dashboard SBML — Latar Biru Muda dan Ungu Muda
 
-Paket dibuat untuk mengatasi kesalahan `Could not detect a directory containing static files` dan kesalahan lama `assets.directory ... /repo/public`.
+Revisi ini memakai **tata letak Dashboard SBML sebelumnya**. Hanya menu **Data Lokal** dan **Impor Data** yang dihapus. Semua angka, matriks, diagram donat, dan filter membaca **Google Sheets** melalui `/api/sbml`.
 
-## LANGKAH PENTING: JANGAN UNGGAH ZIP LANGSUNG KE REPOSITORY
+## Yang tetap ada
 
-1. Ekstrak ZIP pada komputer Anda.
-2. Buka GitHub -> repository yang **benar-benar terhubung** dengan Cloudflare -> branch produksi (biasanya `main`).
-3. **Unggah isi hasil ekstraksi**, bukan ZIP dan bukan folder pembungkus. Pada halaman depan repository GitHub **harus terlihat**:
-   - `wrangler.jsonc`
-   - `worker.js`
-   - `package.json`
-   - `public/` (di dalamnya `index.html`)
-   - `scripts/` (di dalamnya `verify.mjs`)
-4. Hapus atau pindahkan konfigurasi lama `wrangler.toml` / `wrangler.sbml.jsonc` / `wrangler.jsonc` lama jika bertentangan; file `wrangler.jsonc` di paket ini harus menggantikan file standar lama. Jangan menyimpan dua file konfigurasi aktif.
-5. Klik **Commit changes**. Pastikan isi berkas dapat dibuka di GitHub.
-6. Cloudflare Dashboard -> Workers & Pages -> aplikasi -> **Settings > Build** (atau Build & Deploy).
-   - Repository dan branch: cocokkan dengan GitHub yang diubah.
-   - **Root directory: kosong** (atau `/` jika UI meminta; maksudnya root repository).
-   - **Build command: `npm run check`**. Ini memunculkan pesan jelas jika ada file yang tidak di-root.
-   - **Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`**.
-   - Jika ada **Preview command**, gunakan `npx wrangler versions upload --config ./wrangler.jsonc`.
-7. Simpan pengaturan dan jalankan **deployment dari commit terbaru**.
+- Buka Sheet dan Refresh
+- Ringkasan Total, Disetujui, Ditolak, serta Proses/Lainnya
+- Grafik donat Disetujui/Ditolak
+- Kartu keputusan dan filter status
+- Pencarian; filter Tahun, K/L, Jenis SBML
+- Matriks 9 kolom, pagination, Ekspor CSV, JSON, dan Cetak
+- Tombol **Tambah Usulan** yang sekarang membuka Google Sheets; tidak lagi menyimpan data pada browser. Anda perlu hak edit Google Sheets untuk menambah data.
 
-Cloudflare tidak otomatis menyalin isi ZIP unduhan Anda ke repository. Karena tidak memiliki akses ke repository Anda, kami tidak dapat menerapkan perubahan GitHub secara otomatis.
+## Deploy di Cloudflare (Worker `sbml42`)
 
-### Bila deploy gagal lagi
+1. Simpan salinan repository lama sebagai cadangan.
+2. Ekstrak ZIP, lalu **unggah isi ZIP ke root repository GitHub** yang terhubung ke Cloudflare, bukan ZIP atau folder induknya. Timpa berkas lama yang bernama sama.
+3. Commit perubahan. Pastikan root berisi `worker.js`, `wrangler.jsonc`, `package.json`, `backend.js`, `build.mjs`, serta folder `public` dan `scripts`.
+4. Pengaturan Cloudflare: **Build command** `npm run build` dan **Deploy command** `npx wrangler deploy --config ./wrangler.jsonc`. Root directory = root repository.
+5. Verifikasi Worker production bernama **`sbml42`**. Pastikan Runtime Variables and Secrets tetap ada:
+   - `SHEET_ID`: ID spreadsheet
+   - `GOOGLE_CLIENT_EMAIL`: email Service Account
+   - `GOOGLE_PRIVATE_KEY`: Secret berisi private key (jangan masukkan ke repository)
+   - `SHEET_RANGE`: `SBML!A:I`
+6. Buka `/api/sbml` pada domain Worker Anda; pastikan JSON memuat `"source":"Google Sheets"`, kemudian buka homepage dan klik **Refresh**.
 
-Cari pada log:
+File `wrangler.jsonc` memakai `keep_vars:true` untuk mempertahankan variabel runtime Worker. Jangan menambahkan kredensial rahasia ke file konfigurasi / GitHub.
 
-- `Folder deployment: /opt/buildhome/repo` dan `OK: file deployment tersedia`: root benar.
-- `GAGAL: File tidak ada pada Root directory`: file tidak diunggah ke branch/repo/root yang digunakan.
-- `Executing user deploy command: npx wrangler deploy --config ./wrangler.jsonc`: pengaturan deploy benar.
-- `Could not detect a directory containing static files`: kemungkinan command dijalankan tanpa melihat `wrangler.jsonc`, atau konfigurasi lama masih digunakan.
+## Mengganti tulisan tanpa mengubah desain
 
-**Jalan pintas (tanpa GitHub):** Cloudflare Workers & Pages -> Create Worker -> Edit code, salin seluruh `worker.js` ke editor utama, kemudian **Deploy**. Dashboard dibuat di dalam kode Worker ini sehingga tidak memerlukan folder `public` di jalur tersebut. Jika Worker Anda terhubung GitHub, deployment dari GitHub kemudian bisa menimpa perubahan manual.
+Edit `public/index.html`, cari `const APP_CONFIG`:
 
-## Fitur
+- `title`: judul utama
+- `subtitle`: keterangan awal saat memuat
+- `chartTitle`: judul grafik
+- `tableTitle`: judul matriks
 
-Dashboard SBML, grafik pie keputusan **Disetujui/ Ditolak** (status lain tidak masuk penyebut persentase), pencarian, filter, tabel sembilan kolom, data lokal, impor/ekspor CSV/JSON, dan backend pembacaan Google Sheets.
+Setelah menyunting HTML, jalankan `npm run build` atau `node build.mjs` agar `worker.js` berisi desain terbaru, kemudian deploy ulang.
 
-## Konfigurasi Sheets opsional
+## Mengubah warna
 
-Google Sheets tab `SBML`, kolom urut: `No`, `Nama KL`, `Tahun`, `No Surat / Tgl`, `Perihal`, `Surat Menkeu / Tgl`, `Karakteristik K/L`, `Jenis SBML`, `Status`.
+Edit CSS yang diberi komentar `Palet pastel` pada `public/index.html`.
 
-Aktifkan Google Sheets API, bagikan Sheet sebagai Viewer pada email service account, isi **runtime secrets** Cloudflare (jangan GitHub): `SHEET_ID`, `GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY`. Sumber data Sheets dibaca melalui endpoint `/api/sbml`.
+## Data dan keamanan
 
-**Keamanan:** Tanpa Cloudflare Access atau autentikasi lain, dashboard dan API dapat diakses publik. Jangan memasukkan data surat internal rahasia ke Sheet yang diterbitkan lewat aplikasi publik.
+- Tidak ada `localStorage`, data demonstrasi, ataupun impor file di **aplikasi produksi**.
+- Jika API gagal, data tidak diganti dengan data contoh.
+- File preview terpisah memakai data ilustrasi yang **tidak disertakan ke Worker**.
+- Endpoint `/api/sbml` tetap dapat diakses publik jika Anda belum menambahkan kontrol akses. Untuk data internal, gunakan Cloudflare Access atau autentikasi lain sebelum digunakan secara operasional.
 
-## Uji lokal
+## Pengujian
 
 ```
-npm install
-npm run check
-npm run dev
+node build.mjs
+node scripts/verify.mjs
 ```
 
-File `public/index.html` bisa juga dibuka secara lokal dengan browser untuk melihat dashboard versi offline. Paket sudah diuji syntax dan respons HTTP lokal Worker, tetapi deployment ke akun Cloudflare pengguna perlu dilakukan melalui repository atau dashboard pengguna sendiri.
+Pengujian otomatis memeriksa konfigurasi Worker, menu utama, ketiadaan data lokal/impor, serta respons API Google Sheets dengan mock test.

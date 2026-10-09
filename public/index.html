@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f3f6fb">
+<title>Dashboard SBML | Monitoring Usulan Standar Biaya Masukan Lainnya</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:#18253e;background:#f2f6fb;--primary:#5638f5;--green:#16a34a;--red:#e11d65;--amber:#d97706;--border:#dde6f0;--muted:#6c7b94}
+*{box-sizing:border-box}body{margin:0;min-width:320px}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.48}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #a69bff;outline-offset:2px}
+.topbar{background:#fff;border-bottom:1px solid var(--border);box-shadow:0 2px 8px #283c5b09}.bar-inner{max-width:1400px;padding:18px 24px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.identity{display:flex;align-items:center;gap:13px}.logo{width:48px;height:48px;border:1px solid #e5e7ff;border-radius:15px;background:#f4f2ff;display:grid;place-items:center;color:var(--primary);font-size:25px;box-shadow:0 2px 6px #283a6710}.identity h1{font-size:22px;letter-spacing:-.7px;margin:0;font-weight:800}.identity h1 span{color:var(--primary)}.sub{color:var(--muted);font-size:12px;margin-top:3px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-flex;justify-content:center;align-items:center;gap:7px;border:1px solid #d9e1ed;background:#fff;color:#273b57;border-radius:12px;padding:10px 13px;font-size:13px;font-weight:700;white-space:nowrap;text-decoration:none}.btn.primary{color:#fff;background:var(--primary);border-color:var(--primary);box-shadow:0 3px 8px #5638f535}.btn.danger{color:#be174b;background:#fff5f8;border-color:#f6cede}.btn.ghost{border-color:transparent;background:#f1f4f9}.btn:hover:not(:disabled){filter:brightness(.97)}.btn.small{padding:7px 10px;font-size:12px}
+.container{max-width:1400px;margin:0 auto;padding:22px 24px 42px}.notice{border:1px solid #d9e1f0;background:#f7f9ff;border-radius:12px;margin-bottom:18px;padding:11px 15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:#4b5871}.notice strong{color:#273d60}.notice.error{background:#fff5f6;border-color:#f6ccd5;color:#991b40}.notice.ok{background:#f0fdf4;border-color:#c7eed2;color:#166534}.close-note{margin-left:auto;border:0;background:transparent;color:inherit;font-size:18px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:19px}.stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:17px 20px;box-shadow:0 2px 3px #1d31460b}.stat .caption{font-size:12px;color:var(--muted);font-weight:650}.stat .number{font-weight:800;font-size:30px;margin:5px 0 1px;letter-spacing:-1px}.stat .foot{font-size:11px;color:#8b98aa}.stat .number.good{color:var(--green)}.stat .number.bad{color:var(--red)}.stat .number.other{color:var(--amber)}
+.topgrid{display:grid;grid-template-columns:1.12fr .98fr;gap:18px;margin-bottom:18px}.panel{background:white;border:1px solid var(--border);border-radius:17px;box-shadow:0 2px 3px #1d31460d}.chart-panel{padding:20px 22px 15px}.panel-title{font-weight:800;font-size:12px;letter-spacing:.55px;color:#607797;text-transform:uppercase;margin:0}.chart-inner{min-height:280px;display:grid;grid-template-columns:minmax(240px,1fr) 130px;align-items:center;gap:10px}.chart{width:100%;max-height:300px}.chart-key{display:flex;flex-direction:column;gap:13px}.legend{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13px}.dot{display:inline-block;flex:none;width:12px;height:12px;border-radius:50%}.legend strong{margin-left:auto}.chart-info{border-top:1px solid #f0f2f6;color:#6a7890;font-size:12px;padding-top:10px}.decision-cards{display:flex;flex-direction:column;gap:12px}.decision-card{--accent:#64748b;background:#fff;border:1px solid var(--border);border-left:5px solid var(--accent);border-radius:14px;box-shadow:0 2px 3px #1d31460a;padding:17px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--accent);text-align:left;min-height:75px}.decision-card .name{font-size:14px;font-weight:750}.decision-card .count{font-size:24px;font-weight:800;color:#17213a}.decision-card .count small{color:#728198;font-size:11px;font-weight:500}.decision-card.selected{background:#f8f7ff;border-color:var(--accent)}
+.filter-panel{padding:14px 17px;margin-bottom:17px}.filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.filter-label{font-size:11px;letter-spacing:.4px;font-weight:800;color:#647b9c;margin-right:5px}.chip{border:0;border-radius:11px;background:#f2f5fa;padding:9px 13px;color:#344b69;font-size:12px;font-weight:700}.chip.active{background:var(--primary);color:#fff;box-shadow:0 2px 5px #5134f338}
+.table-panel{overflow:hidden}.table-head{padding:19px 20px 14px}.table-head h2{font-size:17px;margin:0 0 5px}.table-head p{margin:0;color:var(--muted);font-size:12px}.tools{padding:0 20px 15px;display:grid;grid-template-columns:minmax(260px,1fr) repeat(3,minmax(140px,190px)) auto;gap:9px}.field{width:100%;min-width:0;border:1px solid #d6e0ec;border-radius:11px;background:#fff;color:#1b2c48;padding:11px 12px;font-size:13px}.field::placeholder{color:#91a0b2}.tools .btn{justify-self:stretch}.info-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px 11px;color:#708098;font-size:12px;flex-wrap:wrap}.table-scroll{overflow:auto;max-height:570px;border-top:1px solid #e9edf4}table{border-collapse:collapse;width:100%;min-width:1100px;font-size:12.5px}th,td{padding:13px 11px;vertical-align:top;border-bottom:1px solid #e8edf4;text-align:left;line-height:1.5}th{position:sticky;top:0;z-index:1;background:#f7f9fc;color:#566b88;font-size:11px;font-weight:800;white-space:nowrap}td{color:#293a53}td:first-child,th:first-child{text-align:center}td:nth-child(2){font-weight:750;min-width:150px}td:nth-child(5){min-width:185px}td:nth-child(8){min-width:125px}td:last-child{white-space:nowrap}.status-badge{display:inline-block;padding:5px 8px;border-radius:8px;font-weight:750;font-size:11px}.status-badge.approved{background:#e8f9ee;color:#15803d}.status-badge.rejected{background:#ffedf2;color:#be185d}.status-badge.other{background:#fff5e6;color:#a16207}.row-actions{white-space:nowrap}.row-actions button{border:0;background:transparent;color:#4b43dd;font-weight:700;padding:3px}.row-actions button.delete{color:#c02d5c}.empty{padding:35px;text-align:center;color:#6c7b94}.pager{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:13px 18px;font-size:12px;color:#73819b}.footer{font-size:12px;color:#7d8b9d;margin-top:17px}.hidden,[hidden]{display:none!important}
+.modal-backdrop{position:fixed;inset:0;z-index:30;background:#15223888;display:grid;place-items:center;padding:16px}.modal{width:min(690px,100%);max-height:95vh;overflow:auto;border-radius:18px;background:#fff;box-shadow:0 20px 65px #10233a44}.modal-title{padding:19px 23px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}.modal-title h2{font-size:19px;margin:0}.form-grid{padding:20px 23px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-grid label{font-weight:700;font-size:12px;color:#51617a;display:flex;flex-direction:column;gap:6px}.form-grid label.wide{grid-column:1/-1}.form-grid textarea{resize:vertical;min-height:65px}.modal-foot{padding:15px 23px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px}.kbd{display:inline-block;background:#eaf0f9;border-radius:6px;padding:2px 5px;font:inherit}
+@media(max-width:1000px){.tools{grid-template-columns:repeat(3,minmax(0,1fr))}.tools input{grid-column:1/-1}.topgrid{grid-template-columns:1fr}.decision-cards{display:grid;grid-template-columns:repeat(3,1fr)}.decision-card{padding:15px}.decision-card .count{font-size:21px}}
+@media(max-width:680px){.bar-inner,.container{padding-left:14px;padding-right:14px}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat{padding:13px}.stat .number{font-size:25px}.decision-cards{grid-template-columns:1fr}.chart-inner{grid-template-columns:1fr}.chart{max-height:280px}.chart-key{display:flex;flex-direction:row;flex-wrap:wrap;gap:12px}.chart-info{margin-top:10px}.tools{grid-template-columns:1fr 1fr}.tools input{grid-column:1/-1}.tools .btn{grid-column:1/-1}.form-grid{grid-template-columns:1fr}.form-grid label.wide{grid-column:1}.identity h1{font-size:19px}}
+@media print{.actions,.tools,.filters,.row-actions,.pager,.notice,.footer,.modal-backdrop{display:none!important}.container{max-width:none}.table-scroll{max-height:none;overflow:visible}table{min-width:0;font-size:9px}th{position:static}.topgrid{grid-template-columns:1fr 1fr}.decision-cards{display:block}.decision-card{margin-bottom:5px}}
+
+/* Palet pastel: biru muda dan ungu muda. Struktur dan menu dashboard tetap. */
+:root{background:#eff5ff;--border:#dce5fa;--primary:#6547df;--muted:#667895}
+body{background:linear-gradient(135deg,#e6f4ff 0%,#eff5ff 40%,#f2ebff 75%,#e8f2ff 100%);background-attachment:fixed}
+.topbar{background:linear-gradient(105deg,#eaf6ff 0%,#f1edff 65%,#e7f0ff 100%);border-bottom:1px solid #dce6fb;box-shadow:0 4px 18px #6f6aab19}
+.logo{background:linear-gradient(135deg,#dcecff,#e8dfff);border-color:#d1d7fc;color:#5c43cd}
+.panel{background:#fff;box-shadow:0 5px 17px #7b80ad13;border-color:#dfe4fa}
+.stat{background:#edf7ff;border-color:#d8eafa;box-shadow:0 4px 14px #889ac017}
+.stat:nth-child(2){background:#eff9f4;border-color:#d3ecde}
+.stat:nth-child(3){background:#fff1f7;border-color:#f7dde8}
+.stat:nth-child(4){background:#f1ebff;border-color:#dfd4fb}
+.chart-panel{background:linear-gradient(150deg,#ffffff 60%,#eff2ff)}
+.decision-card{background:#f8faff;border-color:#e2e7fa;border-left-color:var(--accent)}
+.decision-card:nth-child(1){background:#f0edff}
+.decision-card:nth-child(2){background:#effaf4}
+.decision-card:nth-child(3){background:#fff1f7}
+.decision-card:nth-child(4){background:#f0f5ff}
+.decision-card.selected{background:#eae7ff;box-shadow:0 0 0 2px #b7a9ff32}
+.filter-panel{background:linear-gradient(90deg,#ecf6ff,#f3ecff)}
+.table-head{background:linear-gradient(90deg,#f5faff,#f6f1ff)}
+.chip{background:#e9f0ff}
+.field{border-color:#d9e2f5}
+th{background:#eff3ff;color:#526889}
+tbody tr:nth-child(even){background:#f9fbff}
+.btn.ghost{background:#e8ecff}
+.notice{background:#edf5ff}
+@media print{body{background:white!important}}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="bar-inner">
+<div class="identity"><div class="logo" aria-hidden="true">▦</div><div><h1 id="appTitle">Dashboard <span>SBML</span></h1><div class="sub" id="updateLabel">Standar Biaya Masukan Lainnya · Memuat data...</div></div></div>
+<div class="actions"><a id="openSheet" href="#" target="_blank" rel="noopener noreferrer" class="btn hidden">↗ Buka Sheet</a><button class="btn primary" type="button" id="refresh">↻ Refresh</button></div>
+</div></header>
+<main class="container">
+<div id="notice" class="notice" role="status"><strong id="noticeTitle">Memuat</strong><span id="noticeText">Aplikasi sedang menyiapkan data.</span><button class="close-note" id="closeNotice" type="button" title="Tutup pesan">×</button></div>
+<section class="stats" aria-label="Statistik SBML">
+<div class="stat"><div class="caption">Total Usulan SBML</div><div class="number" id="statTotal">0</div><div class="foot">Semua surat/usulan</div></div>
+<div class="stat"><div class="caption">Disetujui</div><div class="number good" id="statApproved">0</div><div class="foot">Status keputusan disetujui</div></div>
+<div class="stat"><div class="caption">Ditolak</div><div class="number bad" id="statRejected">0</div><div class="foot">Status keputusan ditolak</div></div>
+<div class="stat"><div class="caption">Proses / Status Lain</div><div class="number other" id="statOther">0</div><div class="foot">Belum diputuskan atau kategori lain</div></div>
+</section>
+<section class="topgrid">
+<div class="panel chart-panel"><h2 class="panel-title" id="chartTitle">PERBANDINGAN KEPUTUSAN: DISETUJUI / DITOLAK</h2><div class="chart-inner"><svg id="pie" class="chart" viewBox="0 0 320 300" role="img" aria-label="Diagram donat jumlah usulan disetujui dan ditolak"><circle cx="150" cy="145" r="95" stroke="#ebeff6" stroke-width="53" fill="none"></circle><text x="150" y="138" text-anchor="middle" font-size="33" font-weight="800" fill="#17233d">0</text><text x="150" y="158" text-anchor="middle" font-size="12" fill="#657995">keputusan</text></svg><div class="chart-key"><div class="legend"><i class="dot" style="background:var(--green)"></i>Disetujui <strong id="legendApproved">0</strong></div><div class="legend"><i class="dot" style="background:var(--red)"></i>Ditolak <strong id="legendRejected">0</strong></div></div></div><div class="chart-info" id="chartNote">Hanya keputusan Disetujui dan Ditolak yang diperhitungkan dalam grafik pie.</div></div>
+<div class="decision-cards"><button type="button" class="decision-card" style="--accent:#5638f5" data-decision="all"><span class="name">● Semua Usulan SBML</span><span class="count"><span id="cardAll">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#16a34a" data-decision="approved"><span class="name">● Disetujui</span><span class="count"><span id="cardApproved">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#e11d65" data-decision="rejected"><span class="name">● Ditolak</span><span class="count"><span id="cardRejected">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#d97706" data-decision="other"><span class="name">● Proses / Status Lain</span><span class="count"><span id="cardOther">0</span> <small>usulan</small></span></button></div>
+</section>
+<div class="panel filter-panel"><div class="filters"><span class="filter-label">FILTER STATUS</span><button class="chip active" data-decision="all" type="button">Semua <span id="chipAll">0</span></button><button class="chip" data-decision="approved" type="button">Disetujui <span id="chipApproved">0</span></button><button class="chip" data-decision="rejected" type="button">Ditolak <span id="chipRejected">0</span></button><button class="chip" data-decision="other" type="button">Proses / Lainnya <span id="chipOther">0</span></button><button class="btn small ghost" id="reset" type="button">× Reset filter</button></div></div>
+<section class="panel table-panel" aria-label="Matriks inventarisasi SBML"><div class="table-head"><h2 id="tableTitle">Matriks Inventarisasi SBML</h2><p>Data bersumber dari Google Sheets · Gunakan <b>Tambah Usulan</b> untuk membuka spreadsheet dan memasukkan data.</p></div>
+<div class="tools"><input class="field" id="search" type="search" placeholder="Cari Nama K/L, nomor surat, perihal, jenis SBML..." aria-label="Pencarian seluruh kolom"><select class="field" id="yearFilter" aria-label="Filter tahun"><option value="">Semua Tahun</option></select><select class="field" id="klFilter" aria-label="Filter nama K/L"><option value="">Semua K/L</option></select><select class="field" id="typeFilter" aria-label="Filter jenis SBML"><option value="">Semua Jenis SBML</option></select><button class="btn primary" id="addRecord" type="button">＋ Tambah Usulan</button></div>
+<div class="info-line"><span id="tableInfo">Menampilkan 0 data</span><div class="actions"><button class="btn small" id="exportCsv" type="button">↓ Ekspor CSV</button><button class="btn small" id="exportJson" type="button">↓ JSON</button><button class="btn small" id="print" type="button">⎙ Cetak</button></div></div>
+<div class="table-scroll"><table><thead><tr><th>No</th><th>Nama KL</th><th>Tahun</th><th>No Surat / Tgl</th><th>Perihal</th><th>Surat Menkeu / Tgl</th><th>Karakteristik K/L</th><th>Jenis SBML</th><th>Status</th><th class="row-actions">Aksi</th></tr></thead><tbody id="tbody"></tbody></table><div id="empty" class="empty hidden">Tidak ada data yang sesuai pencarian atau filter.</div></div>
+<div class="pager"><button class="btn small" type="button" id="prevPage">← Sebelumnya</button><span id="pageLabel">Halaman 1</span><button class="btn small" type="button" id="nextPage">Berikutnya →</button></div>
+</section><div class="footer">Dashboard SBML · Sumber data: Google Sheets · Pembaruan usulan dilakukan pada spreadsheet, lalu pilih Refresh di dashboard.</div>
+</main>
+<script>
+'use strict';
+const APP_CONFIG={
+  title:'Dashboard SBML',
+  subtitle:'Standar Biaya Masukan Lainnya · Monitoring Usulan Kementerian/Lembaga',
+  chartTitle:'PERBANDINGAN KEPUTUSAN: DISETUJUI / DITOLAK',
+  tableTitle:'Matriks Inventarisasi SBML'
+};
+const HEADERS=['No','Nama KL','Tahun','No Surat / Tgl','Perihal','Surat Menkeu / Tgl','Karakteristik K/L','Jenis SBML','Status'];
+const KEYS=['no','nama_kl','tahun','no_surat_tgl','perihal','surat_menkeu_tgl','karakteristik_kl','jenis_sbml','status'];
+const $=id=>document.getElementById(id),trim=v=>String(v??'').trim();
+document.title=APP_CONFIG.title+' | Monitoring Usulan';
+const pos=APP_CONFIG.title.lastIndexOf(' ');const last=document.createElement('span');last.textContent=pos<0?APP_CONFIG.title:APP_CONFIG.title.slice(pos+1);$('appTitle').replaceChildren(document.createTextNode(pos<0?'':APP_CONFIG.title.slice(0,pos)+' '),last);
+$('chartTitle').textContent=APP_CONFIG.chartTitle;
+$('tableTitle').textContent=APP_CONFIG.tableTitle;
+$('updateLabel').textContent=APP_CONFIG.subtitle+' · Memuat data...';
+
+const esc=v=>trim(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let rows=[],decision='all',page=1,sheetUrl='',loaded=false;
+const PAGE_SIZE=20;
+const normKey=k=>trim(k).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+function toRecord(raw,index){const mapped={};for(const [k,v] of Object.entries(raw||{}))mapped[normKey(k)]=trim(v);
+ const get=(...names)=>{for(const name of names){const v=mapped[normKey(name)];if(v!==undefined&&v!=='')return v}return ''};
+ return {no:get('no','nomor')||String(index+1),nama_kl:get('nama_kl','nama kl','nama k/l','nama k l'),tahun:get('tahun'),no_surat_tgl:get('no_surat_tgl','no surat / tgl'),perihal:get('perihal'),surat_menkeu_tgl:get('surat_menkeu_tgl','surat menkeu / tgl'),karakteristik_kl:get('karakteristik_kl','karakteristik k/l'),jenis_sbml:get('jenis_sbml','jenis sbml'),status:get('status')||'Belum Ada Status'};
+}
+function decisionOf(value){const s=trim(value).toLowerCase().replace(/\s+/g,' ');if(/^disetujui(?:\b|$)/.test(s)||/^persetujuan\b/.test(s))return 'approved';if(/^ditolak(?:\b|$)/.test(s)||/^penolakan\b/.test(s)||/^tidak\s+(?:dapat\s+)?disetujui\b/.test(s))return 'rejected';return 'other'}
+const totalBy=(arr,k)=>arr.filter(r=>decisionOf(r.status)===k).length;
+function chart(arr){const accepted=totalBy(arr,'approved'),rejected=totalBy(arr,'rejected'),decided=accepted+rejected,r=95,circ=2*Math.PI*r,colors=['#16a34a','#e11d65'];
+ $('legendApproved').textContent=accepted;$('legendRejected').textContent=rejected;
+ let offset=0;const parts=[accepted,rejected].map((n,index)=>({n,index})).filter(x=>x.n>0).map(({n,index})=>{const out=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="${colors[index]}" stroke-width="53" stroke-dasharray="${(n/decided*circ).toFixed(4)} ${(circ-n/decided*circ).toFixed(4)}" stroke-dashoffset="${(-offset/decided*circ).toFixed(4)}" transform="rotate(-90 150 145)"></circle>`;offset+=n;return out}).join('');
+ $('pie').innerHTML=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="#e8edf5" stroke-width="53"></circle>${parts}<text x="150" y="140" text-anchor="middle" font-size="32" font-weight="800" fill="#17233d">${decided?Math.round(accepted/decided*100)+'%':'—'}</text><text x="150" y="160" text-anchor="middle" font-size="12" fill="#657995">${decided} keputusan</text>`;
+ $('chartNote').textContent=`${decided} usulan dengan keputusan Disetujui/Ditolak; ${totalBy(arr,'other')} usulan dalam proses atau status lain tidak masuk penyebut persentase. Grafik mengikuti filter pencarian, tahun, K/L, dan jenis SBML.`;
+}
+function filtersWithoutDecision(){const q=trim($('search').value).toLocaleLowerCase('id-ID'),y=$('yearFilter').value,k=$('klFilter').value,t=$('typeFilter').value;return rows.filter(r=>(!y||r.tahun===y)&&(!k||r.nama_kl===k)&&(!t||r.jenis_sbml===t)&&(!q||KEYS.some(key=>trim(r[key]).toLocaleLowerCase('id-ID').includes(q))))}
+function filtered(){const base=filtersWithoutDecision();return decision==='all'?base:base.filter(r=>decisionOf(r.status)===decision)}
+function optionList(id,values,label){const el=$(id),old=el.value,arr=[...new Set(values.map(trim).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'id'));el.replaceChildren(new Option(label,''),...arr.map(v=>new Option(v,v)));el.value=arr.includes(old)?old:''}
+function setupFilters(){optionList('yearFilter',rows.map(x=>x.tahun),'Semua Tahun');optionList('klFilter',rows.map(x=>x.nama_kl),'Semua K/L');optionList('typeFilter',rows.map(x=>x.jenis_sbml),'Semua Jenis SBML')}
+function render(){const base=filtersWithoutDecision(),view=filtered(),a=totalBy(base,'approved'),r=totalBy(base,'rejected'),o=totalBy(base,'other');
+ $('statTotal').textContent=rows.length;$('statApproved').textContent=totalBy(rows,'approved');$('statRejected').textContent=totalBy(rows,'rejected');$('statOther').textContent=totalBy(rows,'other');
+ for(const [id,n] of [['All',base.length],['Approved',a],['Rejected',r],['Other',o]]){$('card'+id).textContent=n;$('chip'+id).textContent=n}
+ chart(base);document.querySelectorAll('[data-decision]').forEach(b=>{const active=b.dataset.decision===decision;b.classList.toggle('selected',active&&b.classList.contains('decision-card'));b.classList.toggle('active',active&&b.classList.contains('chip'));b.setAttribute('aria-pressed',String(active))});
+ const totalPages=Math.max(1,Math.ceil(view.length/PAGE_SIZE));page=Math.min(Math.max(page,1),totalPages);
+ const start=(page-1)*PAGE_SIZE,slice=view.slice(start,start+PAGE_SIZE);
+ $('tbody').innerHTML=slice.map(x=>{const st=decisionOf(x.status);return `<tr>${KEYS.map(k=>k==='status'?`<td><span class="status-badge ${st}">${esc(x.status)}</span></td>`:`<td>${esc(x[k])||'—'}</td>`).join('')}<td class="row-actions"><span style="color:#7181a3">Google Sheets</span></td></tr>`}).join('');
+ $('empty').classList.toggle('hidden',view.length!==0);$('empty').textContent=!loaded?'Data Google Sheets belum tersedia. Klik Refresh untuk mencoba kembali.':'Tidak ada data yang sesuai pencarian atau filter.';
+ $('tableInfo').textContent=`Menampilkan ${view.length?start+1:0}–${Math.min(start+PAGE_SIZE,view.length)} dari ${view.length} usulan cocok (total ${rows.length})`;
+ $('pageLabel').textContent=`Halaman ${page} dari ${totalPages}`;$('prevPage').disabled=page<=1;$('nextPage').disabled=page>=totalPages;
+}
+function notify(title,text,kind=''){const el=$('notice');el.className='notice'+(kind?' '+kind:'');$('noticeTitle').textContent=title;$('noticeText').textContent=text;el.classList.remove('hidden')}
+async function load(){const button=$('refresh');button.disabled=true;button.textContent='↻ Memuat...';
+ try{const response=await fetch('/api/sbml',{cache:'no-store'});let result;try{result=await response.json()}catch{throw Error('Respons API bukan JSON')}if(!response.ok)throw Error(result.error||'Gagal mengambil data (HTTP '+response.status+')');if(result.source!=='Google Sheets'||!Array.isArray(result.data))throw Error('Sumber data bukan Google Sheets');
+ rows=result.data.map(toRecord).filter(r=>r.nama_kl);loaded=true;sheetUrl=result.sheetUrl||'';$('openSheet').classList.toggle('hidden',!sheetUrl);if(sheetUrl)$('openSheet').href=sheetUrl;
+ $('updateLabel').textContent='Google Sheets · Diperbarui '+new Date().toLocaleString('id-ID');page=1;setupFilters();render();notify('Google Sheets terhubung',`${rows.length} data berhasil dimuat dari spreadsheet. Tambah atau ubah data melalui Google Sheets.`, 'ok');
+ }catch(e){rows=[];loaded=false;sheetUrl='';$('openSheet').classList.add('hidden');$('updateLabel').textContent='Google Sheets · Koneksi belum tersedia';setupFilters();render();notify('Gagal memuat Google Sheets',e.message+'. Tidak menampilkan data lokal atau demonstrasi.','error')}
+ finally{button.disabled=false;button.textContent='↻ Refresh'}}
+function csvCell(v){let s=trim(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function download(content,name,type){const url=URL.createObjectURL(new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function exportCSV(){const content='\uFEFF'+[HEADERS,...filtered().map(r=>KEYS.map(k=>r[k]))].map(row=>row.map(csvCell).join(',')).join('\r\n');download(content,'matriks-sbml-'+new Date().toISOString().slice(0,10)+'.csv','text/csv;charset=utf-8')}
+function exportJSON(){download(JSON.stringify(filtered().map(r=>Object.fromEntries(KEYS.map(k=>[k,r[k]]))),null,2),'matriks-sbml-'+new Date().toISOString().slice(0,10)+'.json','application/json;charset=utf-8')}
+function addRecord(){if(sheetUrl){window.open(sheetUrl,'_blank','noopener,noreferrer')}else notify('Google Sheets belum tersedia','Hubungkan data Google Sheets dan klik Refresh sebelum menambahkan usulan.','error')}
+$('refresh').addEventListener('click',load);$('closeNotice').addEventListener('click',()=>$('notice').classList.add('hidden'));
+for(const id of ['search','yearFilter','klFilter','typeFilter'])$(id).addEventListener(id==='search'?'input':'change',()=>{page=1;render()});
+document.querySelectorAll('[data-decision]').forEach(b=>b.addEventListener('click',()=>{decision=b.dataset.decision;page=1;render()}));
+$('reset').addEventListener('click',()=>{decision='all';$('search').value='';for(const id of ['yearFilter','klFilter','typeFilter'])$(id).value='';page=1;render()});
+$('exportCsv').addEventListener('click',exportCSV);$('exportJson').addEventListener('click',exportJSON);$('print').addEventListener('click',()=>window.print());
+$('prevPage').addEventListener('click',()=>{page--;render()});$('nextPage').addEventListener('click',()=>{page++;render()});
+$('addRecord').addEventListener('click',addRecord);
+load();
+</script></body></html>

@@ -1,15 +1,14 @@
 {
-  "name": "dashboard-sbml",
-  "version": "2.0.0",
+  "name": "dashboard-sbml-pastel-google-sheets",
   "private": true,
+  "version": "3.1.0",
   "type": "module",
   "scripts": {
+    "build": "node build.mjs",
     "check": "node scripts/verify.mjs",
-    "predeploy": "node scripts/verify.mjs",
-    "deploy": "wrangler deploy --config ./wrangler.jsonc",
-    "dev": "wrangler dev --config ./wrangler.jsonc"
+    "deploy": "npm run build && wrangler deploy --config ./wrangler.jsonc"
   },
   "devDependencies": {
-    "wrangler": "^4.149.0"
+    "wrangler": "^4.49.0"
   }
 }

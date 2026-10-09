@@ -1,0 +1,25 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {webcrypto} from 'node:crypto';
+const html=fs.readFileSync(new URL('../public/index.html',import.meta.url),'utf8');
+const worker=fs.readFileSync(new URL('../worker.js',import.meta.url),'utf8');
+const config=JSON.parse(fs.readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+assert.equal(config.name,'sbml42');assert.equal(config.main,'./worker.js');assert.equal(config.keep_vars,true);
+for(const bad of ['Data Lokal','Impor Data','localStorage','importFile','localMode','SAMPLE','data-delete','submitForm','modalBackdrop'])assert.ok(!html.includes(bad),'Forbidden source: '+bad);
+for(const good of ['Tambah Usulan','Buka Sheet','id="refresh"','id="exportCsv"','id="exportJson"','id="print"','id="search"','id="yearFilter"','id="klFilter"','id="typeFilter"','/api/sbml','#e6f4ff','#f2ebff'])assert.ok(html.includes(good),'Feature missing: '+good);
+assert.ok(worker.includes(JSON.stringify(html)),'Deployed Worker must contain newest HTML');
+new vm.Script(html.match(/<script>([\s\S]*?)<\/script>/)[1]);
+console.log('PASS Tampilan asli, biru muda & ungu muda, dua menu dihilangkan, menu lain utuh');
+const {default:app}=await import(new URL('../worker.js',import.meta.url).href);
+const url='https://sbml42.example.workers.dev';
+let response=await app.fetch(new Request(url+'/'),{});assert.equal(response.status,200);assert.ok((await response.text()).includes('Tambah Usulan'));
+response=await app.fetch(new Request(url+'/api/sbml'),{});assert.equal(response.status,503);
+const keys=await webcrypto.subtle.generateKey({name:'RSASSA-PKCS1-v1_5',modulusLength:2048,publicExponent:new Uint8Array([1,0,1]),hash:'SHA-256'},true,['sign','verify']);
+const raw=await webcrypto.subtle.exportKey('pkcs8',keys.privateKey);
+const key='-----BEGIN PRIVATE KEY-----\n'+Buffer.from(raw).toString('base64').match(/.{1,64}/g).join('\n')+'\n-----END PRIVATE KEY-----';
+const env={SHEET_ID:'dummy-test',GOOGLE_CLIENT_EMAIL:'test@example.iam.gserviceaccount.com',GOOGLE_PRIVATE_KEY:key,SHEET_RANGE:'SBML!A:I'};
+const original=globalThis.fetch;let hits=[];
+globalThis.fetch=async(input)=>{hits.push(String(input));if(String(input).includes('oauth2.googleapis.com'))return Response.json({access_token:'fake'});if(String(input).includes('sheets.googleapis.com'))return Response.json({values:[['No','Nama KL','Tahun','No Surat / Tgl','Perihal','Surat Menkeu / Tgl','Karakteristik K/L','Jenis SBML','Status'],['1','Kementerian A','2026','S-1','Test','S-2','Kementerian','Honorarium','Disetujui'],['2','Badan B','2025','S-2','Test 2','S-3','Badan','Kegiatan','Ditolak']]});throw Error('Unexpected URL')};
+try{response=await app.fetch(new Request(url+'/api/sbml'),env);assert.equal(response.status,200);const json=await response.json();assert.equal(json.source,'Google Sheets');assert.equal(json.data.length,2);assert.equal(json.data[1].status,'Ditolak');}finally{globalThis.fetch=original}
+console.log('PASS Worker: 200 halaman, 503 tanpa konfigurasi, 200 Google Sheets (mock 2 baris)');
