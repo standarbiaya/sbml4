@@ -1,54 +1,61 @@
-# Dashboard Monitoring SBML Kementerian/Lembaga — Versi Formal
+# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 3.3
 
-Versi 3.2.0. Diperuntukkan bagi Worker Cloudflare **`sbml42`** yang telah terhubung ke Google Sheets.
+Paket Cloudflare Workers untuk aplikasi **sbml42**. Data produksi **hanya** bersumber dari Google Sheets, melalui Service Account yang telah dikonfigurasi pada Cloudflare. Tidak tersedia fitur impor file atau penyimpanan data lokal.
 
-## Yang diperbarui
+## Pembaruan versi ini
 
-- Logo Kementerian Keuangan dari gambar yang disediakan pengguna, berkas PNG **transparan** di `public/logo-kemenkeu-transparent.png`.
-- Header lebih formal: identitas Kementerian Keuangan, judul **Dashboard Monitoring SBML Kementerian/Lembaga**, deskripsi singkat, dan waktu pembaruan.
-- Tulisan `Google Sheets` di **header** dihilangkan (hanya status waktu pembaruan).
-- Latar biru muda dan ungu muda, grafik, kartu statistik, filter, pencarian, tabel 9 kolom dan menu lain tetap seperti versi sebelumnya.
-- Menu **Data Lokal** dan **Impor Data** tetap tidak tersedia. Tidak ada data contoh atau fallback lokal di Worker produksi.
-- Logo tersedia lewat route langsung `/logo-kemenkeu-transparent.png` yang dihasilkan oleh build Worker. Dengan demikian, logo muncul meski Worker tidak memakai pengaturan folder static assets.
+1. Judul kolom ketujuh dari **Karakteristik K/L** menjadi **Keterangan**.
+2. Kolom **Aksi** di sisi kanan tabel dihapus. Matriks kini terdiri atas **9 kolom**, yaitu:
+   - No
+   - Nama KL
+   - Tahun
+   - No Surat / Tgl
+   - Perihal
+   - Surat Menkeu / Tgl
+   - Keterangan
+   - Jenis SBML
+   - Status
+3. Tombol **Ekspor CSV**, **JSON**, dan **Cetak** dihilangkan, termasuk fungsi JavaScript ekspornya.
+4. Grafik, filter, pencarian, paginasi, kartu statistik, tombol **Tambah Usulan** (membuka Google Sheets), tombol **Buka Sheet**, tombol **Refresh**, logo Kementerian Keuangan, dan palet latar biru-ungu muda tetap dipertahankan.
+5. API menerima **dua format judul kolom ketujuh** di Google Sheets: `Keterangan` (baru) dan `Karakteristik K/L` (lama). Keduanya dipetakan ke kolom `Keterangan` pada dashboard; **data yang sudah ada tetap digunakan**.
 
-## Deploy Cloudflare (`sbml42`)
+## Memperbarui Google Sheets (opsional)
 
-1. Ekstrak ZIP dan unggah **semua isinya** ke **root** repo GitHub yang sudah terhubung ke Worker `sbml42` (jangan unggah ZIP/folder induknya saja). Buat commit baru.
-2. Pastikan root memiliki `wrangler.jsonc`, `worker.js`, `build.mjs`, `backend.js`, `package.json`, `public/`, dan `scripts/`.
-3. Pada Cloudflare → Workers & Pages → `sbml42` → Settings → Build, gunakan:
-   - **Root directory:** root repo.
-   - **Build command:** `npm run build`
-   - **Deploy command:** `npx wrangler deploy --config ./wrangler.jsonc`
-4. Jangan hapus runtime variables/secrets Production: `SHEET_ID`, `GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY` (Secret), serta `SHEET_RANGE` = `SBML!A:I`.
-5. Setelah deploy berhasil, periksa:
-   - `https://sbml42.andriyprast69.workers.dev/` — dashboard.
-   - `https://sbml42.andriyprast69.workers.dev/logo-kemenkeu-transparent.png` — logo transparan.
-   - `https://sbml42.andriyprast69.workers.dev/api/sbml` — data API dengan `source: "Google Sheets"`.
-6. Jika tampilan masih versi lama, lakukan hard refresh (`Ctrl + F5`).
+Jika ingin judul di spreadsheet juga selaras dengan dashboard, ubah hanya sel **G1** di tab `SBML` dari `Karakteristik K/L` menjadi `Keterangan`.
 
-## Mengubah tulisan dan gaya
+Jangan memindahkan atau menghapus isi sel G2:G dan jangan mengubah urutan kolom. Kolom lain tetap sama. Jika belum ingin mengganti judul di spreadsheet, dashboard sudah kompatibel dengan header lama.
 
-- Edit `public/index.html` pada objek **`APP_CONFIG`** untuk mengganti:
-  - `title`: judul utama dan judul tab browser.
-  - `subtitle`: keterangan di bawah judul.
-  - `chartTitle`: judul grafik.
-  - `tableTitle`: judul matriks.
-- Nama instansi pada baris paling atas header berada pada elemen HTML `.institution`.
-- Warna biru muda dan ungu muda dapat diubah pada bagian CSS **Palet pastel**.
-- Ukuran logo diatur oleh CSS `.logo` dan `.logo img`; file aslinya di `public/logo-kemenkeu-transparent.png`.
-- Jalankan `npm run build` setiap selesai mengubah HTML/logo agar `worker.js` diperbarui sebelum deployment. Cloudflare dengan Build command di atas akan menjalankannya otomatis.
+## Deploy ke Worker Cloudflare sbml42
 
-## Keamanan dan sumber data
+1. Ekstrak berkas ZIP dan unggah **seluruh isi ZIP ke root repository GitHub** yang terhubung ke Worker `sbml42`. Jangan unggah ZIP/folder pembungkus saja.
+2. Commit perubahan pada repository.
+3. Di Cloudflare → Workers & Pages → `sbml42` → Settings → Build:
+   - Root directory: root repository.
+   - Build command: `npm run build`
+   - Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`
+4. Jalankan deployment dari commit terbaru, tunggu hingga selesai.
+5. Kunjungi `https://sbml42.andriyprast69.workers.dev/` dan tekan Ctrl+F5 jika versi lama masih terlihat.
 
-Dashboard **hanya membaca data dari Google Sheets** melalui `/api/sbml` yang diautentikasi menggunakan Service Account. Tombol **Tambah Usulan** membuka Google Sheets; perubahan harus dilakukan di sana. Tidak ada import atau penyimpanan lokal.
+**Jangan menghapus atau mengganti** empat konfigurasi runtime yang sudah berfungsi pada Cloudflare Production:
 
-**Penting:** endpoint `/api/sbml` tetap dapat diakses publik jika belum dilindungi. Untuk data internal, atur Cloudflare Access / autentikasi sebelum digunakan untuk operasional. Jangan simpan private key di repository.
+- `SHEET_ID`
+- `GOOGLE_CLIENT_EMAIL`
+- `GOOGLE_PRIVATE_KEY` (Secret)
+- `SHEET_RANGE` = `SBML!A:I`
 
-## Pengujian dan preview
+`wrangler.jsonc` menggunakan nama Worker `sbml42` dan `keep_vars: true` agar variabel runtime yang telah tersimpan pada Cloudflare Dashboard tetap dipertahankan saat deployment melalui Wrangler.
+
+## Pengujian lokal
 
 ```sh
 npm run build
 npm run check
 ```
 
-Preview HTML dan screenshot disediakan **terpisah dari Worker produksi**. Preview memakai data fiktif untuk memeriksa desain, bukan data resmi.
+Skrip uji memastikan terdapat sembilan kolom tanpa Aksi, tombol ekspor/cetak hilang, dan API Google Sheets dapat membaca **header lama maupun baru**.
+
+## Keamanan
+
+Sebelum menampilkan data internal, batasi akses ke website **dan** endpoint `/api/sbml` dengan Cloudflare Access atau mekanisme autentikasi yang disetujui organisasi. Jangan menyimpan Service Account JSON atau private key pada GitHub.
+
+**Preview** HTML dan gambar screenshot disediakan terpisah dari ZIP produksi. Data preview bersifat ilustrasi, bukan data resmi.
