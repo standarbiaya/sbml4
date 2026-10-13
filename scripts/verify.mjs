@@ -72,4 +72,37 @@ try{
     console.log('PASS API membaca header: '+header);
   }
 }finally{globalThis.fetch=original}
+// Uji perhitungan grafik tiga status (bukan hanya dua keputusan).
+const chartSource=html.match(/function chart\(arr\)\{[\s\S]*?\n\}(?=\nfunction filtersWithoutDecision\()/)?.[0];
+assert.ok(chartSource, 'Fungsi grafik tiga kategori tidak ditemukan');
+const nodes=Object.fromEntries(['legendApproved','legendRejected','legendOther','pie','chartNote'].map(id=>[id,{
+  textContent:'',innerHTML:'',attributes:{},setAttribute(name,value){this.attributes[name]=value}
+}]));
+const context={
+  $:id=>nodes[id],
+  totalBy:(arr,status)=>arr.filter(r=>r.status===status).length,
+};
+vm.createContext(context);
+vm.runInContext(chartSource+'\nthis.draw=chart;',context);
+const sample=[
+  ...Array.from({length:3},()=>({status:'approved'})),
+  ...Array.from({length:2},()=>({status:'rejected'})),
+  ...Array.from({length:3},()=>({status:'other'}))
+];
+context.draw(sample);
+assert.equal(nodes.legendApproved.textContent,3);
+assert.equal(nodes.legendRejected.textContent,2);
+assert.equal(nodes.legendOther.textContent,3);
+assert.match(nodes.pie.innerHTML,/#16a34a/);
+assert.match(nodes.pie.innerHTML,/#e11d65/);
+assert.match(nodes.pie.innerHTML,/#d97706/);
+assert.match(nodes.pie.innerHTML,/>8<\/text>/);
+assert.match(nodes.chartNote.textContent,/37,5%/);
+assert.match(nodes.chartNote.textContent,/25%/);
+assert.equal((nodes.pie.innerHTML.match(/stroke-dasharray/g)||[]).length,3);
+context.draw([]);
+assert.doesNotMatch(nodes.pie.innerHTML,/NaN|Infinity/);
+assert.equal(nodes.legendOther.textContent,0);
+console.log('PASS grafik pie: 3 kategori, total 8, persentase benar, dan kondisi 0 data');
+
 console.log('Semua pengujian berhasil');

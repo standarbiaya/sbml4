@@ -77,7 +77,7 @@ tbody tr:nth-child(even){background:#f9fbff}
 <div class="stat"><div class="caption">Proses / Status Lain</div><div class="number other" id="statOther">0</div><div class="foot">Belum diputuskan atau kategori lain</div></div>
 </section>
 <section class="topgrid">
-<div class="panel chart-panel"><h2 class="panel-title" id="chartTitle">PERBANDINGAN KEPUTUSAN: DISETUJUI / DITOLAK</h2><div class="chart-inner"><svg id="pie" class="chart" viewBox="0 0 320 300" role="img" aria-label="Diagram donat jumlah usulan disetujui dan ditolak"><circle cx="150" cy="145" r="95" stroke="#ebeff6" stroke-width="53" fill="none"></circle><text x="150" y="138" text-anchor="middle" font-size="33" font-weight="800" fill="#17233d">0</text><text x="150" y="158" text-anchor="middle" font-size="12" fill="#657995">keputusan</text></svg><div class="chart-key"><div class="legend"><i class="dot" style="background:var(--green)"></i>Disetujui <strong id="legendApproved">0</strong></div><div class="legend"><i class="dot" style="background:var(--red)"></i>Ditolak <strong id="legendRejected">0</strong></div></div></div><div class="chart-info" id="chartNote">Hanya keputusan Disetujui dan Ditolak yang diperhitungkan dalam grafik pie.</div></div>
+<div class="panel chart-panel"><h2 class="panel-title" id="chartTitle">DISTRIBUSI STATUS USULAN: DISETUJUI / DITOLAK / PROSES / STATUS LAIN</h2><div class="chart-inner"><svg id="pie" class="chart" viewBox="0 0 320 300" role="img" aria-label="Diagram donat status usulan: Disetujui, Ditolak, Proses atau Status Lain"><circle cx="150" cy="145" r="95" stroke="#ebeff6" stroke-width="53" fill="none"></circle><text x="150" y="138" text-anchor="middle" font-size="33" font-weight="800" fill="#17233d">0</text><text x="150" y="158" text-anchor="middle" font-size="12" fill="#657995">keputusan</text></svg><div class="chart-key"><div class="legend"><i class="dot" style="background:var(--green)"></i>Disetujui <strong id="legendApproved">0</strong></div><div class="legend"><i class="dot" style="background:var(--red)"></i>Ditolak <strong id="legendRejected">0</strong></div><div class="legend"><i class="dot" style="background:var(--amber)"></i>Proses/Status Lain <strong id="legendOther">0</strong></div></div></div><div class="chart-info" id="chartNote">Seluruh usulan dihitung dalam 3 kategori status: Disetujui, Ditolak, dan Proses/Status Lain.</div></div>
 <div class="decision-cards"><button type="button" class="decision-card" style="--accent:#5638f5" data-decision="all"><span class="name">● Semua Usulan SBML</span><span class="count"><span id="cardAll">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#16a34a" data-decision="approved"><span class="name">● Disetujui</span><span class="count"><span id="cardApproved">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#e11d65" data-decision="rejected"><span class="name">● Ditolak</span><span class="count"><span id="cardRejected">0</span> <small>usulan</small></span></button><button type="button" class="decision-card" style="--accent:#d97706" data-decision="other"><span class="name">● Proses / Status Lain</span><span class="count"><span id="cardOther">0</span> <small>usulan</small></span></button></div>
 </section>
 <div class="panel filter-panel"><div class="filters"><span class="filter-label">FILTER STATUS</span><button class="chip active" data-decision="all" type="button">Semua <span id="chipAll">0</span></button><button class="chip" data-decision="approved" type="button">Disetujui <span id="chipApproved">0</span></button><button class="chip" data-decision="rejected" type="button">Ditolak <span id="chipRejected">0</span></button><button class="chip" data-decision="other" type="button">Proses / Lainnya <span id="chipOther">0</span></button><button class="btn small ghost" id="reset" type="button">× Reset filter</button></div></div>
@@ -93,7 +93,7 @@ tbody tr:nth-child(even){background:#f9fbff}
 const APP_CONFIG={
   title:'Dashboard Monitoring SBML Kementerian/Lembaga',
   subtitle:'Pemantauan Usulan Standar Biaya Masukan Lainnya',
-  chartTitle:'PERBANDINGAN KEPUTUSAN: DISETUJUI / DITOLAK',
+  chartTitle:'DISTRIBUSI STATUS USULAN: DISETUJUI / DITOLAK / PROSES / STATUS LAIN',
   tableTitle:'Matriks Inventarisasi SBML'
 };
 const HEADERS=['No','Nama KL','Tahun','No Surat / Tgl','Perihal','Surat Menkeu / Tgl','Keterangan','Jenis SBML','Status'];
@@ -116,11 +116,23 @@ function toRecord(raw,index){const mapped={};for(const [k,v] of Object.entries(r
 }
 function decisionOf(value){const s=trim(value).toLowerCase().replace(/\s+/g,' ');if(/^disetujui(?:\b|$)/.test(s)||/^persetujuan\b/.test(s))return 'approved';if(/^ditolak(?:\b|$)/.test(s)||/^penolakan\b/.test(s)||/^tidak\s+(?:dapat\s+)?disetujui\b/.test(s))return 'rejected';return 'other'}
 const totalBy=(arr,k)=>arr.filter(r=>decisionOf(r.status)===k).length;
-function chart(arr){const accepted=totalBy(arr,'approved'),rejected=totalBy(arr,'rejected'),decided=accepted+rejected,r=95,circ=2*Math.PI*r,colors=['#16a34a','#e11d65'];
- $('legendApproved').textContent=accepted;$('legendRejected').textContent=rejected;
- let offset=0;const parts=[accepted,rejected].map((n,index)=>({n,index})).filter(x=>x.n>0).map(({n,index})=>{const out=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="${colors[index]}" stroke-width="53" stroke-dasharray="${(n/decided*circ).toFixed(4)} ${(circ-n/decided*circ).toFixed(4)}" stroke-dashoffset="${(-offset/decided*circ).toFixed(4)}" transform="rotate(-90 150 145)"></circle>`;offset+=n;return out}).join('');
- $('pie').innerHTML=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="#e8edf5" stroke-width="53"></circle>${parts}<text x="150" y="140" text-anchor="middle" font-size="32" font-weight="800" fill="#17233d">${decided?Math.round(accepted/decided*100)+'%':'—'}</text><text x="150" y="160" text-anchor="middle" font-size="12" fill="#657995">${decided} keputusan</text>`;
- $('chartNote').textContent=`${decided} usulan dengan keputusan Disetujui/Ditolak; ${totalBy(arr,'other')} usulan dalam proses atau status lain tidak masuk penyebut persentase. Grafik mengikuti filter pencarian, tahun, K/L, dan jenis SBML.`;
+function chart(arr){
+ const accepted=totalBy(arr,'approved'),rejected=totalBy(arr,'rejected'),other=totalBy(arr,'other');
+ const counts=[accepted,rejected,other],colors=['#16a34a','#e11d65','#d97706'];
+ const total=counts.reduce((sum,n)=>sum+n,0),r=95,circ=2*Math.PI*r;
+ $('legendApproved').textContent=accepted;
+ $('legendRejected').textContent=rejected;
+ $('legendOther').textContent=other;
+ let offset=0;
+ const parts=counts.map((n,index)=>({n,index})).filter(({n})=>n>0).map(({n,index})=>{
+  const length=n/total*circ;
+  const segment=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="${colors[index]}" stroke-width="53" stroke-dasharray="${length.toFixed(4)} ${(circ-length).toFixed(4)}" stroke-dashoffset="${(-offset/total*circ).toFixed(4)}" transform="rotate(-90 150 145)"></circle>`;
+  offset+=n;return segment;
+ }).join('');
+ $('pie').innerHTML=`<circle cx="150" cy="145" r="${r}" fill="none" stroke="#e8edf5" stroke-width="53"></circle>${parts}<text x="150" y="140" text-anchor="middle" font-size="34" font-weight="800" fill="#17233d">${total}</text><text x="150" y="160" text-anchor="middle" font-size="12" fill="#657995">total usulan</text>`;
+ $('pie').setAttribute('aria-label',`Diagram status ${total} usulan: ${accepted} disetujui, ${rejected} ditolak, ${other} proses atau status lain`);
+ const percent=n=>total?(100*n/total).toLocaleString('id-ID',{maximumFractionDigits:1})+'%':'0%';
+ $('chartNote').textContent=`Disetujui ${accepted} (${percent(accepted)}) · Ditolak ${rejected} (${percent(rejected)}) · Proses/Status Lain ${other} (${percent(other)}). Persentase dari ${total} usulan sesuai pencarian serta filter tahun, K/L, dan jenis SBML.`;
 }
 function filtersWithoutDecision(){const q=trim($('search').value).toLocaleLowerCase('id-ID'),y=$('yearFilter').value,k=$('klFilter').value,t=$('typeFilter').value;return rows.filter(r=>(!y||r.tahun===y)&&(!k||r.nama_kl===k)&&(!t||r.jenis_sbml===t)&&(!q||KEYS.some(key=>trim(r[key]).toLocaleLowerCase('id-ID').includes(q))))}
 function filtered(){const base=filtersWithoutDecision();return decision==='all'?base:base.filter(r=>decisionOf(r.status)===decision)}

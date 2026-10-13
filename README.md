@@ -1,8 +1,12 @@
-# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 3.3
+# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 3.4
 
 Paket Cloudflare Workers untuk aplikasi **sbml42**. Data produksi **hanya** bersumber dari Google Sheets, melalui Service Account yang telah dikonfigurasi pada Cloudflare. Tidak tersedia fitur impor file atau penyimpanan data lokal.
 
-## Pembaruan versi ini
+## Pembaruan versi 3.4
+
+**Diagram pie sekarang mencakup tiga kategori** dengan perhitungan dari seluruh usulan yang sesuai filter: **Disetujui (hijau), Ditolak (merah muda), Proses/Status Lain (oranye)**. Jumlah total dan persentase ketiganya diperlihatkan; status kosong/tidak sesuai dua kategori keputusan dimasukkan ke Proses/Status Lain. Diagram akan berubah setelah Google Sheets diperbarui dan tombol Refresh ditekan.
+
+## Fitur versi dasar yang dipertahankan
 
 1. Judul kolom ketujuh dari **Karakteristik K/L** menjadi **Keterangan**.
 2. Kolom **Aksi** di sisi kanan tabel dihapus. Matriks kini terdiri atas **9 kolom**, yaitu:
@@ -34,7 +38,7 @@ Jangan memindahkan atau menghapus isi sel G2:G dan jangan mengubah urutan kolom.
    - Build command: `npm run build`
    - Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`
 4. Jalankan deployment dari commit terbaru, tunggu hingga selesai.
-5. Kunjungi `https://sbml42.andriyprast69.workers.dev/` dan tekan Ctrl+F5 jika versi lama masih terlihat.
+5. Kunjungi `https://sbml42.standarbiaya.workers.dev/` dan tekan Ctrl+F5 jika versi lama masih terlihat.
 
 **Jangan menghapus atau mengganti** empat konfigurasi runtime yang sudah berfungsi pada Cloudflare Production:
 
@@ -52,9 +56,12 @@ npm run build
 npm run check
 ```
 
-Skrip uji memastikan terdapat sembilan kolom tanpa Aksi, tombol ekspor/cetak hilang, dan API Google Sheets dapat membaca **header lama maupun baru**.
+Skrip uji memastikan terdapat sembilan kolom tanpa Aksi, tombol ekspor/cetak hilang, grafik tiga kategori (termasuk kondisi 0 data), dan API Google Sheets dapat membaca **header lama maupun baru**.
 
 ## Keamanan
+
+**Perhatian:** Paket ZIP yang diminta untuk diedit adalah **versi dasar tanpa fitur login username/password**. Jika Worker aktif sudah menggunakan versi login, **jangan menimpa Worker produksi langsung dengan paket dasar ini**, karena dapat menghapus perlindungan login pada dashboard dan endpoint `/api/sbml`. Gabungkan perubahan diagram dengan versi login terakhir terlebih dahulu, atau gunakan Cloudflare Access.
+
 
 Sebelum menampilkan data internal, batasi akses ke website **dan** endpoint `/api/sbml` dengan Cloudflare Access atau mekanisme autentikasi yang disetujui organisasi. Jangan menyimpan Service Account JSON atau private key pada GitHub.
 
