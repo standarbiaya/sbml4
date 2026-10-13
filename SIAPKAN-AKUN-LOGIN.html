@@ -18,7 +18,7 @@ function randomBytes(n){const a=new Uint8Array(n);crypto.getRandomValues(a);retu
 $('random').addEventListener('click',()=>{$('password').value=b64url(randomBytes(18));$('status').textContent='Password acak baru dibuat.'});
 $('generate').addEventListener('click',async()=>{
  const user=$('username').value.trim(),pass=$('password').value;
- if(user.length<3||user.length>100||!/^[A-Za-z0-9_.-]+$/.test(user)){$('status').textContent='Gunakan username 3–100 karakter, hanya huruf, angka, titik, _ atau -.';return}
+ if(user.length<2||user.length>100||!/^[A-Za-z0-9_.-]+$/.test(user)){$('status').textContent='Gunakan username 2–100 karakter, hanya huruf, angka, titik, _ atau -.';return}
  if(pass.length<12||pass.length>256){$('status').textContent='Password minimal 12 dan maksimal 256 karakter.';return}
  if(!crypto?.subtle){$('status').textContent='Web Crypto tidak tersedia. Buka HTML ini di Chrome/Edge terbaru, atau jalankan scripts/buat-login.mjs dengan Node.js.';return}
  $('generate').disabled=true;$('status').textContent='Membuat hash password aman, harap tunggu...';

@@ -46,7 +46,7 @@ function json(data, status = 200, extra = {}) {
   return Response.json(data, { status, headers: { ...securityHeaders, ...extra } });
 }
 function loginConfigured(env) {
-  return typeof env.LOGIN_USERNAME === 'string' && env.LOGIN_USERNAME.trim().length >= 3 &&
+  return typeof env.LOGIN_USERNAME === 'string' && env.LOGIN_USERNAME.trim().length >= 2 &&
     typeof env.LOGIN_PASSWORD_HASH === 'string' && env.LOGIN_PASSWORD_HASH.startsWith('pbkdf2_sha256$') &&
     typeof env.SESSION_SECRET === 'string' && env.SESSION_SECRET.length >= 43;
 }
@@ -189,6 +189,14 @@ export default {
     if (path === '/login' && method === 'GET') {
       if (await validSession(request, env)) return redirect('/');
       return htmlResponse(LOGIN_HTML, LOGIN_CSP);
+    }
+    // Endpoint diagnostic only; does not disclose whether any secrets are configured.
+    // It makes it possible to verify that the correct Worker handles API traffic.
+    if (path === '/api/health' && method === 'GET') {
+      return json({ service: 'Dashboard SBML', version: '4.1.0', api: 'online', login: '/api/login' });
+    }
+    if (path === '/api/login' && method === 'GET') {
+      return json({ error: 'Gunakan metode POST untuk masuk', endpoint: '/api/login', version: '4.1.0' }, 405, { Allow: 'POST' });
     }
     if (path === '/api/login' && method === 'POST') {
       if (!sameOrigin(request)) return json({ error: 'Permintaan tidak diizinkan' }, 403);

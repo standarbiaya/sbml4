@@ -1,4 +1,4 @@
-# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 4.0 dengan LOGIN
+# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 4.1 dengan LOGIN
 
 **Tujuan:** Melindungi tampilan dashboard, matriks SBML, dan endpoint `/api/sbml` dengan username dan password. Isi Google Sheets tetap menjadi satu-satunya sumber data. Grafik, pencarian, filter, dan tampilan biru muda–ungu muda dipertahankan.
 
@@ -72,3 +72,22 @@ Buka lagi alat offline, isi username sama, password baru (atau buat acak), klik 
 - `wrangler.jsonc` — memakai Worker aktif `sbml42`, menjaga variables/secrets.
 - `scripts/verify-secure.mjs` — pengujian otomatis; jalankan `npm run check` setelah `npm run build`.
 - `SIAPKAN-AKUN-LOGIN.html` — pengaturan akun offline (jangan diunggah publik).
+
+
+## H. Diagnostik alamat login (versi 4.1)
+
+**Jangan menguji login pada `Preview-Login-Dashboard-SBML.html`.** Pratinjau bukan server API. Halaman produksi berada di https://sbml42.andriyprast69.workers.dev/login .
+
+Sesudah deployment, buka https://sbml42.andriyprast69.workers.dev/api/health . Hasil yang benar:
+
+```json
+{"service":"Dashboard SBML","version":"4.1.0","api":"online","login":"/api/login"}
+```
+
+Jika muncul HTML, 404, atau versi berbeda, Cloudflare belum memakai Worker 4.1. Periksa GitHub commit terbaru, root directory, dan `wrangler.jsonc`.
+
+Kunjungi `/api/login` dengan GET dari browser: versi baru sengaja mengembalikan **JSON 405**, bukan halaman HTML. Login sungguhan memerlukan POST dari formulir login.
+
+Jika POST login mendapat HTML, halaman akan menampilkan pesan perbaikan deployment (bukan pesan `Unexpected token`).
+
+Akun `SB` kini didukung (username minimal 2 karakter). **Password tetap harus minimal 12 karakter**, sehingga contoh pendek yang pernah digunakan tidak dapat dipakai; buat password kuat baru dan hasil hash baru dengan alat offline.

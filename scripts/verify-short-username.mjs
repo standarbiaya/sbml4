@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import { pbkdf2Sync, randomBytes } from 'node:crypto';
+const {default:worker} = await import('../worker.js');
+const pass = 'ContohPasswordSangatKuat#2026';
+const salt = randomBytes(24);
+const env={LOGIN_USERNAME:'SB',LOGIN_PASSWORD_HASH:'pbkdf2_sha256$210000$'+salt.toString('base64url')+'$'+pbkdf2Sync(pass,salt,210000,32,'sha256').toString('base64url'),SESSION_SECRET:randomBytes(48).toString('base64url')};
+const origin='https://sbml42.example.workers.dev';
+const response=await worker.fetch(new Request(origin+'/api/login',{method:'POST',headers:{Origin:origin,'Content-Type':'application/json'},body:JSON.stringify({username:'SB',password:pass})}),env);
+assert.equal(response.status,200);
+assert.equal((await response.json()).success,true);
+console.log('PASS: login username SB (2 karakter)');
