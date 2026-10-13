@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#e6eeff">
+<title>Masuk | Dashboard Monitoring SBML</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#192b4b;background:#edf4ff;--ink:#1e3258;--muted:#7082a5;--purple:#6849db;--border:#dae3f5}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse 950px 520px at -10% 0%,#dbeaff 10%,transparent 80%),radial-gradient(ellipse 760px 520px at 115% 95%,#e7dfff 10%,transparent 80%),#f1f5ff;display:grid;place-items:center;padding:28px 16px}
+.wrap{width:100%;max-width:456px}.brand{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-bottom:25px}.brand img{width:79px;height:82px;object-fit:contain;filter:drop-shadow(0 4px 7px #263c6924)}.agency{font-size:11px;font-weight:800;letter-spacing:1.1px;color:#657697}.brand h1{font-size:23px;line-height:1.22;letter-spacing:-.65px;font-weight:800;margin:3px 0 0}.brand h1 span{color:#6546e2}.brand p{margin:0;color:#6d809e;font-size:13px;line-height:1.5}
+.card{border-radius:23px;padding:33px 32px;background:#fffffff5;border:1px solid #dfe5f6;box-shadow:0 16px 48px #34476d1e}.card h2{margin:0 0 6px;font-size:20px;letter-spacing:-.3px}.lead{font-size:13px;line-height:1.5;color:#657995;margin-bottom:23px}.group{margin-bottom:18px}.group label{font-size:13px;font-weight:700;color:#435575;display:block;margin-bottom:8px}.field{display:block;width:100%;background:#f9fbff;border:1px solid #d4def0;border-radius:12px;padding:13px 14px;font:inherit;font-size:14px;color:#1b304f;outline:none}.field:focus{border-color:#7965e3;box-shadow:0 0 0 3px #7564df1b}.pw{display:flex;gap:7px;align-items:center}.pw .field{flex:1;min-width:0}.reveal{height:45px;padding:0 10px;border:1px solid #d4def0;background:#f9fbff;border-radius:10px;color:#4c607c;font-size:12px;cursor:pointer}.submit{width:100%;margin-top:4px;padding:14px 16px;border:0;background:linear-gradient(110deg,#3e64d8,#7450d9);color:white;border-radius:13px;font:inherit;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px #4c60cf38}.submit:disabled{opacity:.6;cursor:wait}.error{display:none;background:#fff3f6;color:#aa2549;border:1px solid #fad0dd;border-radius:11px;padding:11px 13px;font-size:13px;line-height:1.5;margin:0 0 16px}.error.visible{display:block}.footer{margin-top:20px;text-align:center;font-size:12px;line-height:1.55;color:#7486a4}.footer strong{color:#516582}button:focus-visible,input:focus-visible{outline:3px solid #ad9af7;outline-offset:3px}
+@media(max-width:490px){.card{padding:26px 21px}.brand h1{font-size:21px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <img src="/logo-kemenkeu-transparent.png" alt="Logo Kementerian Keuangan">
+    <div class="agency">KEMENTERIAN KEUANGAN REPUBLIK INDONESIA</div>
+    <h1>Dashboard Monitoring <span>SBML</span></h1>
+    <p>Inventarisasi Standar Biaya Masukan Lainnya Kementerian/Lembaga</p>
+  </div>
+  <section class="card" aria-labelledby="heading">
+    <h2 id="heading">Masuk ke Dashboard</h2>
+    <div class="lead">Akses informasi SBML hanya tersedia untuk pengguna yang memiliki akun.</div>
+    <div id="message" class="error" role="alert"></div>
+    <form id="loginForm" autocomplete="on">
+      <div class="group"><label for="username">Username</label><input class="field" id="username" name="username" type="text" autocomplete="username" maxlength="100" required placeholder="Masukkan username"></div>
+      <div class="group"><label for="password">Password</label><div class="pw"><input class="field" id="password" name="password" type="password" autocomplete="current-password" maxlength="256" required placeholder="Masukkan password"><button class="reveal" type="button" id="togglePassword" aria-label="Tampilkan password">Lihat</button></div></div>
+      <button class="submit" id="submit" type="submit">Masuk <span aria-hidden="true">→</span></button>
+    </form>
+  </section>
+  <div class="footer">Sesi berakhir otomatis setelah 8 jam. <strong>Jangan membagikan kredensial akun.</strong></div>
+</div>
+<script src="/login.js" defer></script>
+</body>
+</html>
