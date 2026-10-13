@@ -1,93 +1,61 @@
-# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 4.1 dengan LOGIN
+# Dashboard Monitoring SBML Kementerian/Lembaga — Versi 3.3
 
-**Tujuan:** Melindungi tampilan dashboard, matriks SBML, dan endpoint `/api/sbml` dengan username dan password. Isi Google Sheets tetap menjadi satu-satunya sumber data. Grafik, pencarian, filter, dan tampilan biru muda–ungu muda dipertahankan.
+Paket Cloudflare Workers untuk aplikasi **sbml42**. Data produksi **hanya** bersumber dari Google Sheets, melalui Service Account yang telah dikonfigurasi pada Cloudflare. Tidak tersedia fitur impor file atau penyimpanan data lokal.
 
-## A. Siapkan akun secara OFFLINE (disarankan)
+## Pembaruan versi ini
 
-1. Ekstrak seluruh isi `Dashboard-SBML-LOGIN-AMAN-Cloudflare.zip` ke komputer.
-2. Buka `SIAPKAN-AKUN-LOGIN.html` dengan **Chrome/Edge** (file ini tidak mengirim data ke internet).
-3. Isi `Username` (misalnya `admin_sbml`), lalu klik **Buat password acak**. **SIMPAN PASSWORD** yang dihasilkan dalam pengelola kata sandi atau catatan aman.
-4. Klik **Buat 3 Pengaturan Cloudflare**. Tunggu hingga nilai konfigurasi muncul.
-5. Siapkan nilai `LOGIN_USERNAME`, `LOGIN_PASSWORD_HASH`, dan `SESSION_SECRET` untuk tahap B.
+1. Judul kolom ketujuh dari **Karakteristik K/L** menjadi **Keterangan**.
+2. Kolom **Aksi** di sisi kanan tabel dihapus. Matriks kini terdiri atas **9 kolom**, yaitu:
+   - No
+   - Nama KL
+   - Tahun
+   - No Surat / Tgl
+   - Perihal
+   - Surat Menkeu / Tgl
+   - Keterangan
+   - Jenis SBML
+   - Status
+3. Tombol **Ekspor CSV**, **JSON**, dan **Cetak** dihilangkan, termasuk fungsi JavaScript ekspornya.
+4. Grafik, filter, pencarian, paginasi, kartu statistik, tombol **Tambah Usulan** (membuka Google Sheets), tombol **Buka Sheet**, tombol **Refresh**, logo Kementerian Keuangan, dan palet latar biru-ungu muda tetap dipertahankan.
+5. API menerima **dua format judul kolom ketujuh** di Google Sheets: `Keterangan` (baru) dan `Karakteristik K/L` (lama). Keduanya dipetakan ke kolom `Keterangan` pada dashboard; **data yang sudah ada tetap digunakan**.
 
-**Alternatif:** Jika punya Node.js, jalankan `npm run buat-login` untuk membuat password acak dan ketiga nilai itu dari terminal. Password hanya muncul saat pembuatan akun.
+## Memperbarui Google Sheets (opsional)
 
-## B. Atur Cloudflare sebelum mengunggah kode
+Jika ingin judul di spreadsheet juga selaras dengan dashboard, ubah hanya sel **G1** di tab `SBML` dari `Karakteristik K/L` menjadi `Keterangan`.
 
-Buka Cloudflare Dashboard → **Workers & Pages → sbml42 → Settings → Variables and Secrets → Production**. Tambahkan:
+Jangan memindahkan atau menghapus isi sel G2:G dan jangan mengubah urutan kolom. Kolom lain tetap sama. Jika belum ingin mengganti judul di spreadsheet, dashboard sudah kompatibel dengan header lama.
 
-| Name | Type | Value |
-|---|---|---|
-| `LOGIN_USERNAME` | **Variable** | Nama user dari alat offline, contoh: `admin_sbml` |
-| `LOGIN_PASSWORD_HASH` | **Secret** | Hash panjang format `pbkdf2_sha256$210000$...` dari alat offline |
-| `SESSION_SECRET` | **Secret** | Nilai acak panjang yang dibuat alat offline |
+## Deploy ke Worker Cloudflare sbml42
 
-Klik **Deploy** untuk menerapkan secrets. **Jangan menulis password asli atau hash/sesi secret di GitHub, wrangler.jsonc atau file HTML.** Jangan berikan password/hash/session secret ke ChatGPT.
+1. Ekstrak berkas ZIP dan unggah **seluruh isi ZIP ke root repository GitHub** yang terhubung ke Worker `sbml42`. Jangan unggah ZIP/folder pembungkus saja.
+2. Commit perubahan pada repository.
+3. Di Cloudflare → Workers & Pages → `sbml42` → Settings → Build:
+   - Root directory: root repository.
+   - Build command: `npm run build`
+   - Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`
+4. Jalankan deployment dari commit terbaru, tunggu hingga selesai.
+5. Kunjungi `https://sbml42.andriyprast69.workers.dev/` dan tekan Ctrl+F5 jika versi lama masih terlihat.
 
-Empat variabel Google Sheets lama **JANGAN diubah atau dihapus**:
-- `SHEET_ID` (Variable atau Secret)
-- `GOOGLE_CLIENT_EMAIL` (Secret lebih baik)
-- `GOOGLE_PRIVATE_KEY` (Secret — harus tetap tersembunyi)
-- `SHEET_RANGE` (Variable, contoh `SBML!A:I`)
+**Jangan menghapus atau mengganti** empat konfigurasi runtime yang sudah berfungsi pada Cloudflare Production:
 
-## C. Unggah aplikasi ke GitHub dan deploy
+- `SHEET_ID`
+- `GOOGLE_CLIENT_EMAIL`
+- `GOOGLE_PRIVATE_KEY` (Secret)
+- `SHEET_RANGE` = `SBML!A:I`
 
-1. Ekstrak ZIP. Unggah **isi paket** ke root repository yang tersambung dengan Cloudflare, termasuk `worker.js`, `backend.js`, `build.mjs`, `package.json`, `wrangler.jsonc`, `public/`, dan `scripts/`. File `SIAPKAN-AKUN-LOGIN.html` hanya alat lokal; **tidak perlu dan sebaiknya jangan diunggah** ke GitHub.
-2. Commit file yang diperbarui ke branch yang dipakai Cloudflare.
-3. Cloudflare → `sbml42` → Settings → Build. Gunakan:
-   - **Root directory:** root repository
-   - **Build command:** `npm run build`
-   - **Deploy command:** `npx wrangler deploy --config ./wrangler.jsonc`
-4. Pastikan deployment sukses; konfigurasi Worker mempertahankan variables/secrets lama melalui `keep_vars: true`.
-5. Buka `https://sbml42.andriyprast69.workers.dev/` menggunakan jendela Incognito untuk memastikan halaman **Masuk ke Dashboard** tampil sebelum dashboard.
+`wrangler.jsonc` menggunakan nama Worker `sbml42` dan `keep_vars: true` agar variabel runtime yang telah tersimpan pada Cloudflare Dashboard tetap dipertahankan saat deployment melalui Wrangler.
 
-## D. Uji keamanan sesudah deployment
+## Pengujian lokal
 
-1. Tanpa login, buka `https://sbml42.andriyprast69.workers.dev/api/sbml` — harus menampilkan HTTP **401** dan pesan akses ditolak, **bukan data SBML**.
-2. Masuk di `https://sbml42.andriyprast69.workers.dev/login` dengan username/password pribadi yang sudah disiapkan.
-3. Setelah masuk, buka dashboard; tombol Refresh harus membaca Google Sheets.
-4. Setelah klik **Keluar**, buka dashboard lagi: harus diarahkan ke halaman login.
-5. Jika melindungi data instansi, gunakan juga **Cloudflare Access** (identitas organisasi/MFA) dan **WAF rate limiting** untuk `/api/login`, karena pembatasan percobaan login di memori Worker hanya best-effort, bukan pembatasan global antarmesin.
-
-## E. Cara ganti/lupa password
-
-Buka lagi alat offline, isi username sama, password baru (atau buat acak), klik Buat Pengaturan, lalu **ubah hanya `LOGIN_PASSWORD_HASH`** ke hash baru. Disarankan juga mengganti `SESSION_SECRET` untuk memutus sesi login lama. Klik Deploy. Tidak perlu memperbarui Google Sheets atau deploy kode dashboard.
-
-## F. Fitur keamanan
-
-- Username/password diverifikasi di server (Cloudflare Worker), **bukan disimpan pada JavaScript publik**.
-- Password **tidak disimpan** di Cloudflare sebagai teks biasa: hanya hash PBKDF2 SHA-256 dengan salt dan 210.000 iterasi.
-- Cookies sesi ditandatangani HMAC SHA-256, `Secure`, `HttpOnly`, `SameSite=Strict`, masa berlaku 8 jam.
-- Semua API (termasuk `/api/sbml` dan `/api/config-check`) memerlukan sesi sah.
-- Login dan logout memeriksa `Origin` sebagai perlindungan CSRF.
-- HTML dashboard memakai Content Security Policy (CSP) hash untuk JavaScript inline.
-- Proteksi login dasar tidak sama dengan sistem identitas organisasi atau MFA. Untuk data internal kementerian, **Cloudflare Access dengan autentikasi organisasi/MFA lebih disarankan**, dan pengaturan izin Viewer Google Sheets tetap harus diterapkan.
-
-## G. Berkas penting
-
-- `public/index.html` — tampilan dashboard.
-- `public/login.html` + `public/login.js` — tampilan dan interaksi login.
-- `backend.js` — autentikasi, sesi, dan pembacaan Google Sheets.
-- `build.mjs` — mengemas halaman dan logo ke `worker.js`.
-- `wrangler.jsonc` — memakai Worker aktif `sbml42`, menjaga variables/secrets.
-- `scripts/verify-secure.mjs` — pengujian otomatis; jalankan `npm run check` setelah `npm run build`.
-- `SIAPKAN-AKUN-LOGIN.html` — pengaturan akun offline (jangan diunggah publik).
-
-
-## H. Diagnostik alamat login (versi 4.1)
-
-**Jangan menguji login pada `Preview-Login-Dashboard-SBML.html`.** Pratinjau bukan server API. Halaman produksi berada di https://sbml42.andriyprast69.workers.dev/login .
-
-Sesudah deployment, buka https://sbml42.andriyprast69.workers.dev/api/health . Hasil yang benar:
-
-```json
-{"service":"Dashboard SBML","version":"4.1.0","api":"online","login":"/api/login"}
+```sh
+npm run build
+npm run check
 ```
 
-Jika muncul HTML, 404, atau versi berbeda, Cloudflare belum memakai Worker 4.1. Periksa GitHub commit terbaru, root directory, dan `wrangler.jsonc`.
+Skrip uji memastikan terdapat sembilan kolom tanpa Aksi, tombol ekspor/cetak hilang, dan API Google Sheets dapat membaca **header lama maupun baru**.
 
-Kunjungi `/api/login` dengan GET dari browser: versi baru sengaja mengembalikan **JSON 405**, bukan halaman HTML. Login sungguhan memerlukan POST dari formulir login.
+## Keamanan
 
-Jika POST login mendapat HTML, halaman akan menampilkan pesan perbaikan deployment (bukan pesan `Unexpected token`).
+Sebelum menampilkan data internal, batasi akses ke website **dan** endpoint `/api/sbml` dengan Cloudflare Access atau mekanisme autentikasi yang disetujui organisasi. Jangan menyimpan Service Account JSON atau private key pada GitHub.
 
-Akun `SB` kini didukung (username minimal 2 karakter). **Password tetap harus minimal 12 karakter**, sehingga contoh pendek yang pernah digunakan tidak dapat dipakai; buat password kuat baru dan hasil hash baru dengan alat offline.
+**Preview** HTML dan gambar screenshot disediakan terpisah dari ZIP produksi. Data preview bersifat ilustrasi, bukan data resmi.

@@ -1,13 +1,12 @@
 {
   "name": "dashboard-sbml-kemenkeu-formal",
   "private": true,
-  "version": "4.1.0",
+  "version": "3.3.0",
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "check": "node scripts/verify-secure.mjs",
-    "deploy": "npm run build && wrangler deploy --config ./wrangler.jsonc",
-    "buat-login": "node scripts/buat-login.mjs"
+    "check": "node scripts/verify.mjs",
+    "deploy": "npm run build && wrangler deploy --config ./wrangler.jsonc"
   },
   "devDependencies": {
     "wrangler": "^4.49.0"
