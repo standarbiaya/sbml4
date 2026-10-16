@@ -37,10 +37,10 @@ const host = 'https://sbml42.example.workers.dev';
 const cookieHeaders = { Origin: host, 'Content-Type': 'application/json' };
 const password = 'UjiPasswordKU!2026Panjang';
 const salt = randomBytes(24);
-const hash = pbkdf2Sync(password, salt, 210000, 32, 'sha256');
+const hash = pbkdf2Sync(password, salt, 100000, 32, 'sha256');
 const env = {
   LOGIN_USERNAME: 'admin_sbml',
-  LOGIN_PASSWORD_HASH: 'pbkdf2_sha256$210000$' + salt.toString('base64url') + '$' + hash.toString('base64url'),
+  LOGIN_PASSWORD_HASH: 'pbkdf2_sha256$100000$' + salt.toString('base64url') + '$' + hash.toString('base64url'),
   SESSION_SECRET: randomBytes(48).toString('base64url'),
   SHEET_ID: 'data-000', GOOGLE_CLIENT_EMAIL: 'reader@example.iam.gserviceaccount.com', SHEET_RANGE: 'SBML!A:I'
 };
@@ -59,11 +59,11 @@ assert.equal(response.status, 200);
 assert.ok((await response.text()).includes('Masuk ke Dashboard'));
 response = await app.fetch(new Request(host + '/api/health'), {});
 assert.equal(response.status, 200);
-assert.deepEqual(await response.json(), { service: 'Dashboard SBML', version: '4.3.0', api: 'online', login: '/api/login', loginConfiguration: { configured: false, missingOrInvalid: ['LOGIN_USERNAME','LOGIN_PASSWORD_HASH','SESSION_SECRET'] } });
+assert.deepEqual(await response.json(), { service: 'Dashboard SBML', version: '4.4.0', api: 'online', login: '/api/login', loginConfiguration: { configured: false, missingOrInvalid: ['LOGIN_USERNAME','LOGIN_PASSWORD_HASH','SESSION_SECRET'] } });
 response = await app.fetch(new Request(host + '/api/login'), {});
 assert.equal(response.status, 405);
 assert.equal(response.headers.get('content-type')?.includes('application/json'), true);
-assert.equal((await response.json()).version, '4.3.0');
+assert.equal((await response.json()).version, '4.4.0');
 response = await app.fetch(new Request(host + '/login.js'), env);
 assert.equal(response.status, 200);
 response = await app.fetch(new Request(host + '/logo-kemenkeu-transparent.png'), {});
@@ -71,11 +71,20 @@ assert.equal(response.status, 200);
 console.log('PASS: proteksi server-side HTML, API, halaman login dan logo');
 response = await app.fetch(new Request(host + '/api/health'), env);
 const health = await response.json();
-assert.equal(health.version, '4.3.0');
+assert.equal(health.version, '4.4.0');
 assert.equal(health.loginConfiguration.configured, true);
 assert.deepEqual(health.loginConfiguration.missingOrInvalid, []);
 console.log('PASS: pemeriksaan konfigurasi login tanpa mengungkap rahasia');
 
+// Regression: old 210,000-iteration hash must be diagnosed as incompatible before WebCrypto.
+const oldHash = 'pbkdf2_sha256$210000$' + salt.toString('base64url') + '$' + pbkdf2Sync(password, salt, 210000, 32, 'sha256').toString('base64url');
+const oldEnv = { ...env, LOGIN_PASSWORD_HASH: oldHash };
+const oldHealth = await (await app.fetch(new Request(host + '/api/health'), oldEnv)).json();
+assert.equal(oldHealth.loginConfiguration.configured, false);
+assert.deepEqual(oldHealth.loginConfiguration.missingOrInvalid, ['LOGIN_PASSWORD_HASH']);
+let oldLogin = await app.fetch(new Request(host + '/api/login', { method: 'POST', headers: cookieHeaders, body: JSON.stringify({ username: env.LOGIN_USERNAME, password }) }), oldEnv);
+assert.equal(oldLogin.status, 503, 'old hash should receive explanatory config error rather than HTTP 500');
+console.log('PASS: hash lama 210k terdeteksi tanpa kesalahan 500');
 const loginRequest = (username, pass, headers = cookieHeaders) => new Request(host + '/api/login', { method: 'POST', headers, body: JSON.stringify({ username, password: pass }) });
 response = await app.fetch(loginRequest('admin_sbml', password, { 'Content-Type': 'application/json' }), env);
 assert.equal(response.status, 403, 'Origin is required for login POST');

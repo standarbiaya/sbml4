@@ -10,6 +10,8 @@ const DASHBOARD_SCRIPT_HASH = "w4NjJfv9Z5TBppdgKKTnt478/PuAwvRahlZ4xkcEkz8=";
 const FIELDS = ['no','nama_kl','tahun','no_surat_tgl','perihal','surat_menkeu_tgl','keterangan','jenis_sbml','status'];
 const COOKIE = '__Host-sbml_session';
 const SESSION_SECONDS = 8 * 60 * 60;
+// workerd PBKDF2 WebCrypto has a 100,000-iteration ceiling.
+const PBKDF2_ITERATIONS = 100000;
 // Best-effort local throttle. Also enable Cloudflare WAF/Access for distributed rate limiting.
 const failedAttempts = new Map();
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
@@ -53,13 +55,19 @@ function json(data, status = 200, extra = {}) {
 }
 function loginConfigured(env) {
   return typeof env.LOGIN_USERNAME === 'string' && env.LOGIN_USERNAME.trim().length >= 2 &&
-    typeof env.LOGIN_PASSWORD_HASH === 'string' && env.LOGIN_PASSWORD_HASH.startsWith('pbkdf2_sha256$') &&
+    loginConfigStatus(env).configured &&
     typeof env.SESSION_SECRET === 'string' && env.SESSION_SECRET.length >= 43;
 }
 function loginConfigStatus(env) {
   const problems = [];
   if (typeof env.LOGIN_USERNAME !== 'string' || env.LOGIN_USERNAME.trim().length < 2) problems.push('LOGIN_USERNAME');
-  if (typeof env.LOGIN_PASSWORD_HASH !== 'string' || !/^pbkdf2_sha256\$\d+\$[A-Za-z0-9_-]+\$[A-Za-z0-9_-]+$/.test(env.LOGIN_PASSWORD_HASH)) problems.push('LOGIN_PASSWORD_HASH');
+  const hash = typeof env.LOGIN_PASSWORD_HASH === 'string' ? env.LOGIN_PASSWORD_HASH : '';
+  const m = /^pbkdf2_sha256\$(\d+)\$([A-Za-z0-9_-]+)\$([A-Za-z0-9_-]+)$/.exec(hash);
+  let validHash = false;
+  if (m && Number(m[1]) === PBKDF2_ITERATIONS) {
+    try { validHash = from64url(m[2]).length === 24 && from64url(m[3]).length === 32; } catch {}
+  }
+  if (!validHash) problems.push('LOGIN_PASSWORD_HASH');
   if (typeof env.SESSION_SECRET !== 'string' || env.SESSION_SECRET.length < 43) problems.push('SESSION_SECRET');
   return { configured: problems.length === 0, missingOrInvalid: problems };
 }
@@ -113,7 +121,7 @@ async function verifyPassword(password, formattedHash) {
   const parts = formattedHash.split('$');
   if (parts.length !== 4 || parts[0] !== 'pbkdf2_sha256') return false;
   const iterations = Number(parts[1]);
-  if (!Number.isSafeInteger(iterations) || iterations < 150000 || iterations > 800000) return false;
+  if (!Number.isSafeInteger(iterations) || iterations !== PBKDF2_ITERATIONS) return false;
   let salt, expected;
   try {
     salt = from64url(parts[2]);
@@ -206,14 +214,14 @@ export default {
     // Endpoint diagnostic only; does not disclose whether any secrets are configured.
     // It makes it possible to verify that the correct Worker handles API traffic.
     if (path === '/api/health' && method === 'GET') {
-      return json({ service: 'Dashboard SBML', version: '4.3.0', api: 'online', login: '/api/login', loginConfiguration: loginConfigStatus(env) });
+      return json({ service: 'Dashboard SBML', version: '4.4.0', api: 'online', login: '/api/login', loginConfiguration: loginConfigStatus(env) });
     }
     if (path === '/api/login' && method === 'GET') {
-      return json({ error: 'Gunakan metode POST untuk masuk', endpoint: '/api/login', version: '4.3.0' }, 405, { Allow: 'POST' });
+      return json({ error: 'Gunakan metode POST untuk masuk', endpoint: '/api/login', version: '4.4.0' }, 405, { Allow: 'POST' });
     }
     if (path === '/api/login' && method === 'POST') {
       if (!sameOrigin(request)) return json({ error: 'Permintaan tidak diizinkan' }, 403);
-      if (!loginConfigured(env)) return json({ error: 'Konfigurasi akun login belum lengkap atau tidak valid. Periksa /api/health.', code: 'AUTH_CONFIG', fields: loginConfigStatus(env).missingOrInvalid }, 503);
+      if (!loginConfigured(env)) return json({ error: 'Konfigurasi akun login belum lengkap atau hash lama tidak kompatibel. Buat hash baru (100.000 iterasi), simpan sebagai Secret, lalu periksa /api/health.', code: 'AUTH_CONFIG', fields: loginConfigStatus(env).missingOrInvalid }, 503);
       if (!(request.headers.get('Content-Type') || '').toLowerCase().startsWith('application/json')) return json({ error: 'Format permintaan tidak sesuai' }, 415);
       if (Number(request.headers.get('Content-Length') || 0) > 2048) return json({ error: 'Permintaan terlalu besar' }, 413);
       let info;
@@ -225,7 +233,7 @@ export default {
       const password = typeof info?.password === 'string' ? info.password : '';
       let correctPassword;
       try { correctPassword = await verifyPassword(password, env.LOGIN_PASSWORD_HASH); }
-      catch { return json({ error: 'Gagal memproses konfigurasi hash password. Buat hash baru dan simpan sebagai Secret.', code: 'AUTH_HASH' }, 500); }
+      catch { return json({ error: 'Verifikasi password gagal pada runtime. Pastikan hash PBKDF2 menggunakan 100.000 iterasi dan tersimpan sebagai Secret.', code: 'AUTH_HASH' }, 500); }
       if (username !== env.LOGIN_USERNAME || !correctPassword) { registerLoginFailure(ip, item); return json({ error: 'Username atau password salah' }, 401); }
       failedAttempts.delete(ip);
       let token;

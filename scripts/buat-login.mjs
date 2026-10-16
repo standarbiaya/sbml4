@@ -7,7 +7,7 @@ try {
   const username = answer || 'StandarBiaya';
   if (!/^[A-Za-z0-9_.-]{2,100}$/.test(username)) throw Error('Username tidak valid');
   const password = randomBytes(18).toString('base64url');
-  const salt = randomBytes(24), iterations = 210000;
+  const salt = randomBytes(24), iterations = 100000;
   const hash = pbkdf2Sync(password, salt, iterations, 32, 'sha256');
   console.log('\nPASSWORD LOGIN (CATAT; hanya muncul sekali):', password);
   console.log('LOGIN_USERNAME   (Variable):', username);
