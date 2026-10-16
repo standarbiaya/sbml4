@@ -46,7 +46,7 @@ form.addEventListener('submit', async event => {
     let result;
     try { result = await response.json(); }
     catch { throw new Error('Respons login dari server tidak dapat dibaca. Silakan coba kembali.'); }
-    if (!response.ok) throw Error(result.error || 'Tidak dapat masuk. Coba kembali.');
+    if (!response.ok) throw Error('HTTP ' + response.status + ': ' + (result.error || result.message || ('Login ditolak (kode ' + (result.code || 'tidak diketahui') + ').')));
     if (result.success !== true) throw Error('Server tidak mengonfirmasi login.');
     window.location.replace('/');
   } catch (error) {

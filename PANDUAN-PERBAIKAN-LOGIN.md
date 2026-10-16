@@ -1,39 +1,69 @@
-# Perbaikan Login Dashboard SBML — 4.1
+# Perbaikan Login Dashboard SBML — Versi 4.3
 
-## Apa yang diperbaiki
-- Error teknis `Unexpected token '<'` kini diganti dengan penjelasan bahwa endpoint login tidak mengembalikan JSON.
-- Halaman preview/offline tidak lagi mengirim percobaan login ke host yang salah.
-- `/api/health` memberikan penanda versi untuk memastikan deployment yang aktif.
-- `/api/login` dengan GET mengembalikan HTTP 405 berformat JSON, bukan HTML.
-- Username dengan 2 karakter, contohnya `SB`, didukung. Password minimal 12 karakter untuk keamanan.
-- Google Sheets, sembilan kolom SBML dan proteksi API tetap seperti versi sebelumnya.
+**Tujuan:** memperjelas penyebab login gagal tanpa mengungkap username/password, hash, ataupun session secret. Semua fitur sebelumnya tetap ada: diagram pie tiga kategori, Google Sheets, pencarian, filter, dan matriks sembilan kolom.
 
-## Deployment ke Worker sbml42
-1. Ekstrak ZIP, unggah **isi ZIP** ke root repository GitHub yang terhubung dengan Worker `sbml42`; ganti berkas lama (khususnya `worker.js`, `backend.js`, `build.mjs`, `public/login.js`, dan `wrangler.jsonc`).
-2. `Commit changes` ke branch yang digunakan pada Cloudflare.
-3. Cloudflare > Workers & Pages > `sbml42` > Settings > Build.
-   - Root directory: root repository.
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`
-4. Pastikan deployment **Success** pada commit yang baru.
-5. **Jangan hapus** empat variabel Google Sheets atau tiga variabel login di Production. Jangan memasukkan password asli atau secret ke GitHub.
+## Hasil pemeriksaan paket sebelumnya
 
-## Uji yang menunjukkan versi yang benar-benar aktif
-- Buka: `https://sbml42.standarbiaya.workers.dev/api/health`
-- Harus muncul: `{"service":"Dashboard SBML","version":"4.1.0","api":"online","login":"/api/login"}`.
-- Jika yang muncul HTML, 404 atau versi berbeda, Worker 4.1 **belum aktif** pada URL tersebut. Jangan mengubah password; periksa deployment/repository/root directory dahulu.
-- Buka `https://sbml42.standarbiaya.workers.dev/api/login` langsung di browser: harus JSON dengan status HTTP **405** karena login memerlukan POST. Jika HTML, routing Worker masih belum benar.
-- Setelah kedua pemeriksaan di atas benar, buka `https://sbml42.standarbiaya.workers.dev/login` dan lakukan login.
-- Gunakan tab Incognito atau `Ctrl+Shift+R` jika browser menampilkan versi lama.
+File `PENGATURAN-AKUN-SBML-RAHASIA.txt` yang terpisah dari paket aplikasi telah diuji lokal: username `StandarBiaya` dan password yang sebelumnya ditentukan cocok dengan hash yang disediakan. Jika login gagal di website, periksa variabel Worker dan deployment. **Jangan unggah file rahasia tersebut ke GitHub atau ke website.**
 
-## Pengaturan akun
-- `LOGIN_USERNAME`: Variable — username yang digunakan (contoh `SB` atau username lain).
-- `LOGIN_PASSWORD_HASH`: Secret — hasil dari `SIAPKAN-AKUN-LOGIN.html`, bukan password asli.
-- `SESSION_SECRET`: Secret — kunci sesi acak hasil alat offline.
-- Gunakan password **minimal 12 karakter**. Password pendek yang sebelumnya pernah dikirim di chat tidak memenuhi ketentuan ini dan sebaiknya tidak digunakan lagi.
+## 1. Atur kembali variabel login di akun Cloudflare yang BENAR
 
-## Bila halaman login masih gagal
-- `401` JSON: username/password salah; periksa bahwa hash dibuat dari password dan username yang dipilih.
-- `503` JSON: tiga variabel login belum lengkap/aktif pada Worker Production.
-- HTML bukannya JSON: `/api/login` diarahkan ke HTML, umumnya berkas preview atau kode deploy lama.
-- Jangan bagikan password, hasil hash, session secret, atau private key Google Sheets untuk pemeriksaan.
+1. Cloudflare > Workers & Pages > **sbml42** (akun **standarbiaya**) > Settings > Variables and Secrets > **Production**.
+2. Pastikan tiga isian berikut ada, dengan nama PERSIS:
+
+| Name | Type | Value |
+|---|---|---|
+| `LOGIN_USERNAME` | Variable | `StandarBiaya` |
+| `LOGIN_PASSWORD_HASH` | Secret | Nilai hash **lengkap** dari file pengaturan rahasia terpisah |
+| `SESSION_SECRET` | Secret | Nilai acak lengkap dari file pengaturan rahasia terpisah |
+
+3. Bila ada isian lama, pilih **Edit** untuk mengganti nilainya. **Jangan menyalin password biasa** ke `LOGIN_PASSWORD_HASH`.
+4. Pastikan `LOGIN_PASSWORD_HASH` diawali `pbkdf2_sha256$` dan memiliki 4 bagian yang dipisahkan `$`. Jangan tambahkan tanda kutip, spasi, atau baris baru.
+5. Klik **Deploy / Save and Deploy** di lingkungan Production.
+6. **Jangan hapus variabel Google Sheets**: `SHEET_ID`, `GOOGLE_CLIENT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `SHEET_RANGE`.
+
+## 2. Deploy kode perbaikan (bila masih belum berhasil)
+
+1. Ekstrak ZIP aplikasi; unggah **isi ZIP** ke root repository GitHub yang terhubung ke Worker `sbml42`.
+2. Commit dan pastikan Cloudflare deployment **Success** dari commit terbaru.
+3. Build command: `npm run build`.
+4. Deploy command: `npx wrangler deploy --config ./wrangler.jsonc`.
+5. Konfigurasi `wrangler.jsonc` memakai Worker `sbml42` dan `keep_vars: true`.
+
+## 3. Periksa tanpa membocorkan rahasia
+
+Buka `https://sbml42.standarbiaya.workers.dev/api/health`.
+
+Versi perbaikan ini akan menampilkan JSON seperti:
+
+```json
+{
+  "service": "Dashboard SBML",
+  "version": "4.3.0",
+  "api": "online",
+  "login": "/api/login",
+  "loginConfiguration": {
+    "configured": true,
+    "missingOrInvalid": []
+  }
+}
+```
+
+- Jika `version` bukan `4.3.0`, Worker masih menjalankan kode lama.
+- Jika `configured: false`, perbaiki isian yang namanya muncul di `missingOrInvalid`. Nilai rahasia tidak akan ditampilkan.
+- Jika `configured: true`, login siap dicek; `configured` **tidak menjamin password cocok**, hanya bahwa variabel tersedia dan format dasarnya valid.
+
+Buka `https://sbml42.standarbiaya.workers.dev/login` menggunakan jendela Incognito. Login dengan akun yang telah Anda atur. Saat gagal, halaman sekarang menampilkan kode HTTP:
+
+- **401**: username atau password tidak cocok dengan hash Cloudflare; salin ulang `LOGIN_USERNAME` dan `LOGIN_PASSWORD_HASH` dari file pengaturan rahasia.
+- **403**: permintaan ditolak karena asal permintaan tidak sesuai. Pastikan login di domain produksi, bukan preview.
+- **429**: terlalu banyak percobaan; tunggu 15 menit.
+- **500**: ada masalah pada pemrosesan hash atau kunci sesi; cek pesan diagnosis.
+- **503**: variabel login belum lengkap; lihat `/api/health`.
+- **HTML / Unexpected token**: Worker lama, deploy keliru, atau halaman preview; periksa `/api/health`.
+
+## Keamanan setelah login normal
+
+- **Ganti password** ke password unik dan panjang karena password yang pernah digunakan sudah tampil dalam chat/screenshot.
+- Buat hash baru melalui `SIAPKAN-AKUN-LOGIN.html` yang dijalankan secara offline. Salin hanya `LOGIN_PASSWORD_HASH` dan `SESSION_SECRET` baru ke Cloudflare Secrets, tanpa mengunggahnya ke GitHub.
+- Pemeriksaan `loginConfiguration` pada `/api/health` hanya menampilkan status/nama variabel, tidak nilainya. Setelah masalah terselesaikan, Anda dapat menonaktifkan rincian diagnostik bila diperlukan.

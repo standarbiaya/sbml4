@@ -50,6 +50,13 @@ function loginConfigured(env) {
     typeof env.LOGIN_PASSWORD_HASH === 'string' && env.LOGIN_PASSWORD_HASH.startsWith('pbkdf2_sha256$') &&
     typeof env.SESSION_SECRET === 'string' && env.SESSION_SECRET.length >= 43;
 }
+function loginConfigStatus(env) {
+  const problems = [];
+  if (typeof env.LOGIN_USERNAME !== 'string' || env.LOGIN_USERNAME.trim().length < 2) problems.push('LOGIN_USERNAME');
+  if (typeof env.LOGIN_PASSWORD_HASH !== 'string' || !/^pbkdf2_sha256\$\d+\$[A-Za-z0-9_-]+\$[A-Za-z0-9_-]+$/.test(env.LOGIN_PASSWORD_HASH)) problems.push('LOGIN_PASSWORD_HASH');
+  if (typeof env.SESSION_SECRET !== 'string' || env.SESSION_SECRET.length < 43) problems.push('SESSION_SECRET');
+  return { configured: problems.length === 0, missingOrInvalid: problems };
+}
 function cookieValue(request, name) {
   const raw = request.headers.get('Cookie') || '';
   for (const part of raw.split(';')) {
@@ -193,14 +200,14 @@ export default {
     // Endpoint diagnostic only; does not disclose whether any secrets are configured.
     // It makes it possible to verify that the correct Worker handles API traffic.
     if (path === '/api/health' && method === 'GET') {
-      return json({ service: 'Dashboard SBML', version: '4.2.0', api: 'online', login: '/api/login' });
+      return json({ service: 'Dashboard SBML', version: '4.3.0', api: 'online', login: '/api/login', loginConfiguration: loginConfigStatus(env) });
     }
     if (path === '/api/login' && method === 'GET') {
-      return json({ error: 'Gunakan metode POST untuk masuk', endpoint: '/api/login', version: '4.2.0' }, 405, { Allow: 'POST' });
+      return json({ error: 'Gunakan metode POST untuk masuk', endpoint: '/api/login', version: '4.3.0' }, 405, { Allow: 'POST' });
     }
     if (path === '/api/login' && method === 'POST') {
       if (!sameOrigin(request)) return json({ error: 'Permintaan tidak diizinkan' }, 403);
-      if (!loginConfigured(env)) return json({ error: 'Akun login belum diatur. Hubungi pengelola dashboard.' }, 503);
+      if (!loginConfigured(env)) return json({ error: 'Konfigurasi akun login belum lengkap atau tidak valid. Periksa /api/health.', code: 'AUTH_CONFIG', fields: loginConfigStatus(env).missingOrInvalid }, 503);
       if (!(request.headers.get('Content-Type') || '').toLowerCase().startsWith('application/json')) return json({ error: 'Format permintaan tidak sesuai' }, 415);
       if (Number(request.headers.get('Content-Length') || 0) > 2048) return json({ error: 'Permintaan terlalu besar' }, 413);
       let info;
@@ -210,10 +217,14 @@ export default {
       if (item && item.count >= MAX_FAILED_LOGINS) return json({ error: 'Terlalu banyak percobaan login. Coba lagi dalam 15 menit.' }, 429, { 'Retry-After': '900' });
       const username = typeof info?.username === 'string' ? info.username : '';
       const password = typeof info?.password === 'string' ? info.password : '';
-      const correctPassword = await verifyPassword(password, env.LOGIN_PASSWORD_HASH);
+      let correctPassword;
+      try { correctPassword = await verifyPassword(password, env.LOGIN_PASSWORD_HASH); }
+      catch { return json({ error: 'Gagal memproses konfigurasi hash password. Buat hash baru dan simpan sebagai Secret.', code: 'AUTH_HASH' }, 500); }
       if (username !== env.LOGIN_USERNAME || !correctPassword) { registerLoginFailure(ip, item); return json({ error: 'Username atau password salah' }, 401); }
       failedAttempts.delete(ip);
-      const token = await createSession(username, env);
+      let token;
+      try { token = await createSession(username, env); }
+      catch { return json({ error: 'Tidak dapat membuat sesi. Periksa SESSION_SECRET.', code: 'AUTH_SESSION' }, 500); }
       return json({ success: true }, 200, { 'Set-Cookie': cookieHeader(token) });
     }
     if (path === '/api/logout' && method === 'POST') {
