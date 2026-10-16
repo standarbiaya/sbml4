@@ -66,7 +66,7 @@ tbody tr:nth-child(even){background:#f9fbff}
 <body>
 <header class="topbar"><div class="bar-inner">
 <div class="identity"><div class="logo" ><img src="./logo-kemenkeu-transparent.png" alt="Logo Kementerian Keuangan"></div><div class="identity-copy"><div class="institution">KEMENTERIAN KEUANGAN REPUBLIK INDONESIA</div><h1 id="appTitle">Dashboard Monitoring <span>SBML</span> Kementerian/Lembaga</h1><div class="sub"><span class="subtitle-label" id="subtitleLabel">Pemantauan Usulan Standar Biaya Masukan Lainnya</span><span class="subtitle-divider" aria-hidden="true">·</span><span id="updateLabel">Memuat data...</span></div></div></div>
-<div class="actions"><a id="openSheet" href="#" target="_blank" rel="noopener noreferrer" class="btn hidden">↗ Buka Sheet</a><button class="btn primary" type="button" id="refresh">↻ Refresh</button></div>
+<div class="actions"><a id="openSheet" href="#" target="_blank" rel="noopener noreferrer" class="btn hidden">↗ Buka Sheet</a><button class="btn primary" type="button" id="refresh">↻ Refresh</button><button class="btn" type="button" id="logout" title="Keluar dari akun">⇥ Keluar</button></div>
 </div></header>
 <main class="container">
 <div id="notice" class="notice" role="status"><strong id="noticeTitle">Memuat</strong><span id="noticeText">Aplikasi sedang menyiapkan data.</span><button class="close-note" id="closeNotice" type="button" title="Tutup pesan">×</button></div>
@@ -151,7 +151,7 @@ function render(){const base=filtersWithoutDecision(),view=filtered(),a=totalBy(
 }
 function notify(title,text,kind=''){const el=$('notice');el.className='notice'+(kind?' '+kind:'');$('noticeTitle').textContent=title;$('noticeText').textContent=text;el.classList.remove('hidden')}
 async function load(){const button=$('refresh');button.disabled=true;button.textContent='↻ Memuat...';
- try{const response=await fetch('/api/sbml',{cache:'no-store'});let result;try{result=await response.json()}catch{throw Error('Respons API bukan JSON')}if(!response.ok)throw Error(result.error||'Gagal mengambil data (HTTP '+response.status+')');if(result.source!=='Google Sheets'||!Array.isArray(result.data))throw Error('Sumber data bukan Google Sheets');
+ try{const response=await fetch('/api/sbml',{cache:'no-store'});let result;try{result=await response.json()}catch{throw Error('Respons API bukan JSON')}if(response.status===401){window.location.replace('/login');return;}if(!response.ok)throw Error(result.error||'Gagal mengambil data (HTTP '+response.status+')');if(result.source!=='Google Sheets'||!Array.isArray(result.data))throw Error('Sumber data bukan Google Sheets');
  rows=result.data.map(toRecord).filter(r=>r.nama_kl);loaded=true;sheetUrl=result.sheetUrl||'';$('openSheet').classList.toggle('hidden',!sheetUrl);if(sheetUrl)$('openSheet').href=sheetUrl;
  $('updateLabel').textContent='Diperbarui '+new Date().toLocaleString('id-ID');page=1;setupFilters();render();notify('Google Sheets terhubung',`${rows.length} data berhasil dimuat dari spreadsheet. Tambah atau ubah data melalui Google Sheets.`, 'ok');
  }catch(e){rows=[];loaded=false;sheetUrl='';$('openSheet').classList.add('hidden');$('updateLabel').textContent='Koneksi data belum tersedia';setupFilters();render();notify('Gagal memuat Google Sheets',e.message+'. Tidak menampilkan data lokal atau demonstrasi.','error')}
@@ -163,5 +163,9 @@ document.querySelectorAll('[data-decision]').forEach(b=>b.addEventListener('clic
 $('reset').addEventListener('click',()=>{decision='all';$('search').value='';for(const id of ['yearFilter','klFilter','typeFilter'])$(id).value='';page=1;render()});
 $('prevPage').addEventListener('click',()=>{page--;render()});$('nextPage').addEventListener('click',()=>{page++;render()});
 $('addRecord').addEventListener('click',addRecord);
+$('logout').addEventListener('click',async()=>{
+  const button=$('logout');button.disabled=true;
+  try{await fetch('/api/logout',{method:'POST',credentials:'same-origin'})}finally{window.location.replace('/login')}
+});
 load();
 </script></body></html>

@@ -3,9 +3,9 @@ import { randomBytes, pbkdf2Sync } from 'node:crypto';
 import { createInterface } from 'node:readline/promises';
 const io = createInterface({ input: process.stdin, output: process.stdout });
 try {
-  const answer = (await io.question('Username (default: admin_sbml): ')).trim();
-  const username = answer || 'admin_sbml';
-  if (!/^[A-Za-z0-9_.-]{3,100}$/.test(username)) throw Error('Username tidak valid');
+  const answer = (await io.question('Username (default: StandarBiaya): ')).trim();
+  const username = answer || 'StandarBiaya';
+  if (!/^[A-Za-z0-9_.-]{2,100}$/.test(username)) throw Error('Username tidak valid');
   const password = randomBytes(18).toString('base64url');
   const salt = randomBytes(24), iterations = 210000;
   const hash = pbkdf2Sync(password, salt, iterations, 32, 'sha256');

@@ -19,11 +19,11 @@
 5. **Jangan hapus** empat variabel Google Sheets atau tiga variabel login di Production. Jangan memasukkan password asli atau secret ke GitHub.
 
 ## Uji yang menunjukkan versi yang benar-benar aktif
-- Buka: `https://sbml42.andriyprast69.workers.dev/api/health`
+- Buka: `https://sbml42.standarbiaya.workers.dev/api/health`
 - Harus muncul: `{"service":"Dashboard SBML","version":"4.1.0","api":"online","login":"/api/login"}`.
 - Jika yang muncul HTML, 404 atau versi berbeda, Worker 4.1 **belum aktif** pada URL tersebut. Jangan mengubah password; periksa deployment/repository/root directory dahulu.
-- Buka `https://sbml42.andriyprast69.workers.dev/api/login` langsung di browser: harus JSON dengan status HTTP **405** karena login memerlukan POST. Jika HTML, routing Worker masih belum benar.
-- Setelah kedua pemeriksaan di atas benar, buka `https://sbml42.andriyprast69.workers.dev/login` dan lakukan login.
+- Buka `https://sbml42.standarbiaya.workers.dev/api/login` langsung di browser: harus JSON dengan status HTTP **405** karena login memerlukan POST. Jika HTML, routing Worker masih belum benar.
+- Setelah kedua pemeriksaan di atas benar, buka `https://sbml42.standarbiaya.workers.dev/login` dan lakukan login.
 - Gunakan tab Incognito atau `Ctrl+Shift+R` jika browser menampilkan versi lama.
 
 ## Pengaturan akun

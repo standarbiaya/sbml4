@@ -1,5 +1,5 @@
 'use strict';
-const PROD_HOST = 'sbml42.andriyprast69.workers.dev';
+const PROD_HOST = 'sbml42.standarbiaya.workers.dev';
 const form = document.getElementById('loginForm');
 const submit = document.getElementById('submit');
 const message = document.getElementById('message');
@@ -41,7 +41,7 @@ form.addEventListener('submit', async event => {
     });
     const type = (response.headers.get('content-type') || '').toLowerCase();
     if (!type.includes('application/json')) {
-      throw new Error('Server tidak mengirim respons login JSON. Periksa apakah paket versi 4.1 sudah berhasil di-deploy ke Worker sbml42, bukan halaman preview atau Worker lain.');
+      throw new Error('Server tidak mengirim respons login JSON. Periksa apakah paket versi 4.2 sudah berhasil di-deploy ke Worker sbml42, bukan halaman preview atau Worker lain.');
     }
     let result;
     try { result = await response.json(); }

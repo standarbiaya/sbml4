@@ -1,16 +1,10 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "portal-standar-biaya",
-  "main": "worker/index.ts",
-  "compatibility_date": "2026-10-13",
-  "assets": {
-    "not_found_handling": "single-page-application",
-    "run_worker_first": ["/api/*"]
-  },
+  "name": "sbml42",
+  "main": "./worker.js",
+  "compatibility_date": "2026-10-09",
+  "workers_dev": true,
   "vars": {
-    "GOOGLE_SHEET_ID": "",
-    "ENABLE_SCHEDULED_SYNC": "false"
+    "SHEET_RANGE": "SBML!A:I"
   },
-  "triggers": {"crons": ["0 1 * * *"]},
-  "observability": {"enabled": true}
+  "keep_vars": true
 }
